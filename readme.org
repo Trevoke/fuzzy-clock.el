@@ -32,19 +32,21 @@ More importantly, it changes your relationship with time. When your mode-line sa
 
 * Fuzziness Levels
 
-Fuzzy Clock supports 9 levels of fuzziness, from precise to very abstract:
+Fuzzy Clock supports 11 levels of fuzziness, from precise to very abstract:
 
-| Level | Type            | Example                 |
-|-------+-----------------+-------------------------|
-| 1     | Every 5 minutes | "Quarter past three"    |
-| 2     | Every 15 min    | "Half past three"       |
-| 3     | Half hour       | "Three o'clock"         |
-| 4     | Hour (default)  | "Three o'clock"         |
-| 5     | Part of day     | "Afternoon"             |
-| 6     | Day of week     | "Tuesday"               |
-| 7     | Week number     | "Week 42"               |
-| 8     | Month           | "October"               |
-| 9     | Season          | "Fall"                  |
+| Level | Type              | Example                   |
+|-------+-------------------+---------------------------|
+| 1     | Every 5 minutes   | "Quarter past three"      |
+| 2     | Every 15 min      | "Half past three"         |
+| 3     | Half hour         | "Three o'clock"           |
+| 4     | Hour (default)    | "Three o'clock"           |
+| 5     | Part of day       | "Afternoon"               |
+| 6     | Day of week       | "Tuesday"                 |
+| 7     | Part of month     | "Early October"           |
+| 8     | Month             | "October"                 |
+| 9     | Part of season    | "Early Fall"              |
+| 10    | Part of year      | "Early 2025"              |
+| 11    | Year              | "2025"                    |
 
 Choose your fuzziness level:
 
@@ -60,6 +62,15 @@ Choose your fuzziness level:
 
 ;; Weekly planning
 (setq fuzzy-clock-fuzziness 'day-of-week)
+
+;; Monthly view
+(setq fuzzy-clock-fuzziness 'part-of-month)
+
+;; Seasonal perspective
+(setq fuzzy-clock-fuzziness 'part-of-season)
+
+;; Long-term planning
+(setq fuzzy-clock-fuzziness 'part-of-year)
 #+end_src
 
 * Configuration
