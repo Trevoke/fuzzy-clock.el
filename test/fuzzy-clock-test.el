@@ -285,25 +285,45 @@
       (expect (fuzzy-clock-format-time 'day-of-week 12 0 2 11 2024 6 nil -25200)
               :to-equal "Saturday")))
 
-  (describe "Level 7: Week fuzziness"
-    ;; At this level, time is expressed as the ISO week number
-    ;; ISO week numbers run from 1-53
-    ;; We'll test with known ISO week numbers for specific dates
+  (describe "Level 7: Part of month fuzziness"
+    ;; At this level, time is expressed as part of the month
+    ;; Early (days 1-10), Middle (days 11-20), Late (days 21-end)
 
-    (it "should say 'Week 1' for early January (ISO week 1)"
-      ;; January 1, 2024 is in ISO week 1
-      (expect (fuzzy-clock-format-time 'week 12 0 1 1 2024 1 nil -25200)
-              :to-equal "Week 1"))
+    (it "should say 'Early January' for January 1st"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 1 1 2024 1 nil -25200)
+              :to-equal "Early January"))
 
-    (it "should say 'Week 43' for late October"
-      ;; October 24, 2024 is in ISO week 43
-      (expect (fuzzy-clock-format-time 'week 12 0 24 10 2024 4 nil -25200)
-              :to-equal "Week 43"))
+    (it "should say 'Early October' for October 5th"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 5 10 2024 6 nil -25200)
+              :to-equal "Early October"))
 
-    (it "should say 'Week 52' for late December"
-      ;; December 26, 2024 is in ISO week 52
-      (expect (fuzzy-clock-format-time 'week 12 0 26 12 2024 4 nil -25200)
-              :to-equal "Week 52")))
+    (it "should say 'Early December' for December 10th"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 10 12 2024 2 nil -25200)
+              :to-equal "Early December"))
+
+    (it "should say 'Middle February' for February 11th"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 11 2 2024 0 nil -25200)
+              :to-equal "Middle February"))
+
+    (it "should say 'Middle June' for June 15th"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 15 6 2024 6 nil -25200)
+              :to-equal "Middle June"))
+
+    (it "should say 'Middle September' for September 20th"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 20 9 2024 5 nil -25200)
+              :to-equal "Middle September"))
+
+    (it "should say 'Late March' for March 21st"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 21 3 2024 4 nil -25200)
+              :to-equal "Late March"))
+
+    (it "should say 'Late October' for October 25th"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 25 10 2024 5 nil -25200)
+              :to-equal "Late October"))
+
+    (it "should say 'Late December' for December 31st"
+      (expect (fuzzy-clock-format-time 'part-of-month 12 0 31 12 2024 2 nil -25200)
+              :to-equal "Late December")))
 
   (describe "Level 8: Month fuzziness"
     ;; At this level, time is expressed as the month name
@@ -357,57 +377,125 @@
       (expect (fuzzy-clock-format-time 'month 12 0 15 12 2024 0 nil -25200)
               :to-equal "December")))
 
-  (describe "Level 9: Season fuzziness integration"
-    ;; At this level, time is expressed as the current season via fuzzy-clock-format-time
-    ;; Seasons are based on month: Winter (12,1,2), Spring (3,4,5), Summer (6,7,8), Fall (9,10,11)
+  (describe "Level 9: Part of season fuzziness"
+    ;; At this level, time is expressed as part of the current season
+    ;; Seasons are: Winter (12,1,2), Spring (3,4,5), Summer (6,7,8), Fall (9,10,11)
+    ;; First month = Early, Second month = Middle, Third month = Late
 
-    (it "should say 'Winter' in December"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 12 2024 0 nil -25200)
-              :to-equal "Winter"))
+    (it "should say 'Early Winter' in December"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 12 2024 0 nil -25200)
+              :to-equal "Early Winter"))
 
-    (it "should say 'Winter' in January"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 1 2025 3 nil -25200)
-              :to-equal "Winter"))
+    (it "should say 'Middle Winter' in January"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 1 2025 3 nil -25200)
+              :to-equal "Middle Winter"))
 
-    (it "should say 'Winter' in February"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 2 2025 6 nil -25200)
-              :to-equal "Winter"))
+    (it "should say 'Late Winter' in February"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 2 2025 6 nil -25200)
+              :to-equal "Late Winter"))
 
-    (it "should say 'Spring' in March"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 3 2025 6 nil -25200)
-              :to-equal "Spring"))
+    (it "should say 'Early Spring' in March"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 3 2025 6 nil -25200)
+              :to-equal "Early Spring"))
 
-    (it "should say 'Spring' in April"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 4 2025 2 nil -25200)
-              :to-equal "Spring"))
+    (it "should say 'Middle Spring' in April"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 4 2025 2 nil -25200)
+              :to-equal "Middle Spring"))
 
-    (it "should say 'Spring' in May"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 5 2025 4 nil -25200)
-              :to-equal "Spring"))
+    (it "should say 'Late Spring' in May"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 5 2025 4 nil -25200)
+              :to-equal "Late Spring"))
 
-    (it "should say 'Summer' in June"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 6 2025 0 nil -25200)
-              :to-equal "Summer"))
+    (it "should say 'Early Summer' in June"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 6 2025 0 nil -25200)
+              :to-equal "Early Summer"))
 
-    (it "should say 'Summer' in July"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 7 2025 2 nil -25200)
-              :to-equal "Summer"))
+    (it "should say 'Middle Summer' in July"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 7 2025 2 nil -25200)
+              :to-equal "Middle Summer"))
 
-    (it "should say 'Summer' in August"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 8 2025 5 nil -25200)
-              :to-equal "Summer"))
+    (it "should say 'Late Summer' in August"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 8 2025 5 nil -25200)
+              :to-equal "Late Summer"))
 
-    (it "should say 'Fall' in September"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 9 2025 1 nil -25200)
-              :to-equal "Fall"))
+    (it "should say 'Early Fall' in September"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 9 2025 1 nil -25200)
+              :to-equal "Early Fall"))
 
-    (it "should say 'Fall' in October"
-      (expect (fuzzy-clock-format-time 'season 12 0 30 10 2025 4 nil -25200)
-              :to-equal "Fall"))
+    (it "should say 'Middle Fall' in October"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 30 10 2025 4 nil -25200)
+              :to-equal "Middle Fall"))
 
-    (it "should say 'Fall' in November"
-      (expect (fuzzy-clock-format-time 'season 12 0 15 11 2025 6 nil -25200)
-              :to-equal "Fall")))
+    (it "should say 'Late Fall' in November"
+      (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 11 2025 6 nil -25200)
+              :to-equal "Late Fall")))
+
+  (describe "Level 10: Part of year fuzziness"
+    ;; At this level, time is expressed as part of the year
+    ;; Months 1-4 = Early, Months 5-8 = Middle, Months 9-12 = Late
+
+    (it "should say 'Early 2024' in January"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 1 2024 1 nil -25200)
+              :to-equal "Early 2024"))
+
+    (it "should say 'Early 2025' in February"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 2 2025 6 nil -25200)
+              :to-equal "Early 2025"))
+
+    (it "should say 'Early 2024' in March"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 3 2024 5 nil -25200)
+              :to-equal "Early 2024"))
+
+    (it "should say 'Early 2025' in April"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 4 2025 2 nil -25200)
+              :to-equal "Early 2025"))
+
+    (it "should say 'Middle 2024' in May"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 5 2024 3 nil -25200)
+              :to-equal "Middle 2024"))
+
+    (it "should say 'Middle 2025' in June"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 6 2025 0 nil -25200)
+              :to-equal "Middle 2025"))
+
+    (it "should say 'Middle 2024' in July"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 7 2024 1 nil -25200)
+              :to-equal "Middle 2024"))
+
+    (it "should say 'Middle 2025' in August"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 8 2025 5 nil -25200)
+              :to-equal "Middle 2025"))
+
+    (it "should say 'Late 2024' in September"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 9 2024 0 nil -25200)
+              :to-equal "Late 2024"))
+
+    (it "should say 'Late 2025' in October"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 10 2025 3 nil -25200)
+              :to-equal "Late 2025"))
+
+    (it "should say 'Late 2024' in November"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 11 2024 5 nil -25200)
+              :to-equal "Late 2024"))
+
+    (it "should say 'Late 2025' in December"
+      (expect (fuzzy-clock-format-time 'part-of-year 12 0 15 12 2025 1 nil -25200)
+              :to-equal "Late 2025")))
+
+  (describe "Level 11: Year fuzziness"
+    ;; At this level, time is expressed as just the year
+
+    (it "should say '2024' for any date in 2024"
+      (expect (fuzzy-clock-format-time 'year 12 0 15 6 2024 6 nil -25200)
+              :to-equal "2024"))
+
+    (it "should say '2025' for any date in 2025"
+      (expect (fuzzy-clock-format-time 'year 12 0 15 1 2025 3 nil -25200)
+              :to-equal "2025"))
+
+    (it "should say '2026' for any date in 2026"
+      (expect (fuzzy-clock-format-time 'year 12 0 30 10 2026 4 nil -25200)
+              :to-equal "2026")))
 
   (describe "Season helper function (fuzzy-clock-format-season)"
     ;; Tests for the standalone season formatting function
