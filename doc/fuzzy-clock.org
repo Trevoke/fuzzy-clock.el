@@ -122,7 +122,7 @@ Consider these conversations:
 
 Each answer uses a different resolution of time. They're all correct. They're all useful. The resolution depends on what matters.
 
-Fuzzy Clock gives you 9 different resolutions. Let's understand them from the inside out.
+Fuzzy Clock gives you 11 different resolutions. Let's understand them from the inside out.
 
 ** Level 4: Hour (The Default)
 
@@ -229,17 +229,24 @@ Now we've zoomed out even further. Hours don't matter. The specific day matters.
 
 This is useful when you're thinking about your week as a whole. "It's Tuesday" is more meaningful than "It's 14:32 on Tuesday" when you're planning weekly tasks.
 
-** Level 7: Week Number
+** Level 7: Part of Month
 
 #+begin_src emacs-lisp
-(setq fuzzy-clock-fuzziness 'week)
+(setq fuzzy-clock-fuzziness 'part-of-month)
 #+end_src
 
-Your mode-line shows: "Week 42", "Week 1", etc. (ISO week numbers)
+Your mode-line shows: "Early October", "Middle October", "Late October"
 
-At this level, you're thinking in terms of *project timelines*. Individual days blur together. What matters is which week of the year you're in.
+This introduces a new pattern: subdividing a period into parts. The month is divided into three phases:
+- Days 1-10: Early
+- Days 11-20: Middle
+- Days 21-end: Late
 
-*When to use this:* When you're planning long-term projects. When you think in sprints or weekly cycles.
+Why does this matter? Because "Early October" and "Late October" feel different. Early in the month, you're fresh from the previous month. Late in the month, you're anticipating the next.
+
+This level acknowledges that *position within a cycle matters*.
+
+*When to use this:* When monthly cycles matter but specific dates don't. Useful for monthly billing cycles, paycheck rhythms, or project phases that span weeks but not the full month.
 
 ** Level 8: Month
 
@@ -251,23 +258,57 @@ Your mode-line shows: "January", "October", etc.
 
 Useful for thinking about the year as a whole. "It's October" tells you where you are in the annual cycle.
 
-** Level 9: Season (Maximum Fuzziness)
+** Level 9: Part of Season
 
 #+begin_src emacs-lisp
-(setq fuzzy-clock-fuzziness 'season)
+(setq fuzzy-clock-fuzziness 'part-of-season)
 #+end_src
 
-Your mode-line shows: "Winter", "Spring", "Summer", or "Fall"
+Your mode-line shows: "Early Fall", "Middle Fall", "Late Fall"
 
-This is the most abstract level. Time has been reduced to its most basic cycle: the seasons.
+The pattern from Level 7 returns. Now we're subdividing seasons instead of months.
 
-Seasons are defined as:
-- Winter: December, January, February
-- Spring: March, April, May
-- Summer: June, July, August
-- Fall: September, October, November
+Each season has three months, and each month represents a phase:
+- First month: Early (December = Early Winter, March = Early Spring, etc.)
+- Second month: Middle (January = Middle Winter, April = Middle Spring, etc.)
+- Third month: Late (February = Late Winter, May = Late Spring, etc.)
 
-*When to use this:* Probably never in your mode-line. But it's useful conceptually. It reminds you that time is cyclical, not linear. We're always in one of four states, rotating forever.
+"Early Winter" (December) feels different from "Late Winter" (February). One is anticipatory, the other transitional. The language captures this.
+
+*When to use this:* When you're thinking in seasonal cycles but want to distinguish between the beginning and end of a season. Useful for agricultural planning, seasonal affective disorder awareness, or long-term project phases.
+
+** Level 10: Part of Year
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'part-of-year)
+#+end_src
+
+Your mode-line shows: "Early 2025", "Middle 2025", "Late 2025"
+
+Again, the three-part pattern. The year is divided into:
+- Months 1-4: Early (January through April)
+- Months 5-8: Middle (May through August)
+- Months 9-12: Late (September through December)
+
+This level is about annual rhythm. "Early 2025" carries the energy of new beginnings, fresh starts, New Year's resolutions. "Late 2025" carries the weight of the year behind you, the approaching close of an annual cycle.
+
+*When to use this:* For multi-year projects where individual months don't matter. For thinking about fiscal years, academic years, or personal annual planning. When you want year awareness without monthly granularity.
+
+** Level 11: Year (Maximum Fuzziness)
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'year)
+#+end_src
+
+Your mode-line shows: "2025", "2026", etc.
+
+This is the most abstract level. Time reduced to its yearly marker.
+
+Just the year. No month, no season, no day. Only the position in the largest cycle most people think about.
+
+*When to use this:* Honestly? Probably never in your mode-line. But it completes the pattern. It's the logical endpoint of progressive abstraction. It reminds you that sometimes, the only time that matters is *what year it is*.
+
+This level is more philosophical than practical. It exists to complete the conceptual model of zooming out from minutes to years.
 
 ** The Pattern: Zooming Out
 
@@ -279,12 +320,28 @@ Notice the pattern in these levels:
 4. Hour — The natural unit
 5. Part of day — Subdividing days
 6. Day of week — The natural unit
-7. Week — Subdividing months/years
-8. Month — Subdividing years
-9. Season — Subdividing years
+7. Part of month — Subdividing months
+8. Month — The natural unit
+9. Part of season — Subdividing seasons
+10. Part of year — Subdividing years
+11. Year — The natural unit
+
+There's a deeper pattern emerging: *alternation between parts and wholes*.
+
+- Levels 1-4: Subdivide hours → culminate in Hour
+- Levels 5-6: Subdivide days → culminate in Day of Week
+- Levels 7-8: Subdivide months → culminate in Month
+- Levels 9-10: Subdivide seasons and years → culminate in Year
+
+The "part of period" pattern (early/middle/late) appears at three scales:
+- Part of month (days 1-10, 11-20, 21+)
+- Part of season (first/second/third month)
+- Part of year (months 1-4, 5-8, 9-12)
+
+This creates a *fractal structure*. The same three-part division works whether you're subdividing a month, a season, or a year. It's a natural way humans think about position within cycles.
 
 Levels 1-4 are about *precision within a day*.
-Levels 5-9 are about *position within larger cycles*.
+Levels 5-11 are about *position within larger cycles*.
 
 ** Choosing Your Fuzziness Level
 
@@ -294,8 +351,10 @@ Here's how to think about it:
 
 - Need to catch a meeting in 15 minutes? → Use ~five-minutes~ or ~fifteen-minutes~
 - Want to reduce time anxiety? → Use ~hour~ or ~part-of-day~
-- Planning your week? → Use ~day-of-week~ or ~week~
-- Just want to stay grounded in the current season? → Use ~season~
+- Planning your week? → Use ~day-of-week~
+- Tracking monthly cycles? → Use ~part-of-month~ or ~month~
+- Thinking in seasonal rhythms? → Use ~part-of-season~
+- Working on annual projects? → Use ~part-of-year~ or ~year~
 
 You can change this *anytime*. Time is contextual. Your fuzziness should be too.
 
@@ -349,10 +408,10 @@ By default, fuzzy-clock updates every 60 seconds:
 
 If your fuzziness is set to ~hour~, your mode-line will show "Three o'clock" for a full hour. The 60-second update means the display will change within a minute of when it should.
 
-But if your fuzziness is ~season~, updating every 60 seconds is overkill. Seasons last three months. You could update once a day:
+But if your fuzziness is ~year~, updating every 60 seconds is overkill. Years last twelve months. You could update once a day:
 
 #+begin_src emacs-lisp
-(setq fuzzy-clock-fuzziness 'season)
+(setq fuzzy-clock-fuzziness 'year)
 (setq fuzzy-clock-update-interval 86400)  ; 24 hours
 #+end_src
 
@@ -365,9 +424,11 @@ Recommended intervals:
 - ~hour~ → 600 seconds (10 minutes)
 - ~part-of-day~ → 3600 seconds (1 hour)
 - ~day-of-week~ → 3600 seconds (1 hour)
-- ~week~ → 86400 seconds (24 hours)
+- ~part-of-month~ → 86400 seconds (24 hours)
 - ~month~ → 86400 seconds (24 hours)
-- ~season~ → 86400 seconds (24 hours)
+- ~part-of-season~ → 86400 seconds (24 hours)
+- ~part-of-year~ → 86400 seconds (24 hours)
+- ~year~ → 86400 seconds (24 hours)
 
 Less frequent updates = less CPU usage = more battery life.
 
@@ -587,9 +648,11 @@ Not yet published to MELPA. Manual installation required.
 | ~'hour~            | Rounds to hour                 | "Three o'clock"           |
 | ~'part-of-day~     | Morning/Afternoon/Evening/Night| "Afternoon"               |
 | ~'day-of-week~     | Monday through Sunday          | "Tuesday"                 |
-| ~'week~            | ISO week number                | "Week 42"                 |
+| ~'part-of-month~   | Part of month (early/mid/late) | "Early October"           |
 | ~'month~           | Month name                     | "October"                 |
-| ~'season~          | Season name                    | "Fall"                    |
+| ~'part-of-season~  | Part of season (early/mid/late)| "Middle Fall"             |
+| ~'part-of-year~    | Part of year (early/mid/late)  | "Late 2025"               |
+| ~'year~            | Year number                    | "2025"                    |
 
 ** Functions
 
@@ -736,14 +799,35 @@ Do not modify directly. Managed by ~fuzzy-clock-mode~.
 | 18-21      | "Evening"   |
 | 22-5       | "Night"     |
 
-*** Season Mapping
+*** Part-of-Month Mapping
 
-| Months              | Season   |
-|---------------------|----------|
-| December-February   | "Winter" |
-| March-May           | "Spring" |
-| June-August         | "Summer" |
-| September-November  | "Fall"   |
+| Day Range | Part     | Display Example   |
+|-----------|----------|-------------------|
+| 1-10      | Early    | "Early October"   |
+| 11-20     | Middle   | "Middle October"  |
+| 21-31     | Late     | "Late October"    |
+
+*** Part-of-Season Mapping
+
+| Month in Season | Part   | Winter Example    | Spring Example    | Summer Example    | Fall Example      |
+|-----------------|--------|-------------------|-------------------|-------------------|-------------------|
+| First month     | Early  | "Early Winter"    | "Early Spring"    | "Early Summer"    | "Early Fall"      |
+| Second month    | Middle | "Middle Winter"   | "Middle Spring"   | "Middle Summer"   | "Middle Fall"     |
+| Third month     | Late   | "Late Winter"     | "Late Spring"     | "Late Summer"     | "Late Fall"       |
+
+Seasons are defined as:
+- Winter: December (Early), January (Middle), February (Late)
+- Spring: March (Early), April (Middle), May (Late)
+- Summer: June (Early), July (Middle), August (Late)
+- Fall: September (Early), October (Middle), November (Late)
+
+*** Part-of-Year Mapping
+
+| Month Range | Part   | Display Example |
+|-------------|--------|-----------------|
+| 1-4         | Early  | "Early 2025"    |
+| 5-8         | Middle | "Middle 2025"   |
+| 9-12        | Late   | "Late 2025"     |
 
 ** Requirements
 
@@ -833,14 +917,28 @@ eldev test
 
 The test suite includes:
 - Rounding behavior tests for all fuzziness levels
+- Part-of-period tests (month, season, year)
 - Mode-line integration tests
 - Special case tests (midnight, noon)
 - Edge case tests (hour wraparound)
 - Display method tests
+- Season helper function tests
 
-70+ acceptance tests ensure correctness.
+140 acceptance tests ensure correctness.
 
 ** Version History
+
+*** 0.2.0 (2025)
+
+- Refactored granularity progression to use part-of-period pattern
+- Replaced ~'week~ with ~'part-of-month~ (early/middle/late month)
+- Replaced ~'season~ with ~'part-of-season~ (early/middle/late season)
+- Added ~'part-of-year~ (early/middle/late year)
+- Added ~'year~ (year number)
+- Total fuzziness levels increased from 9 to 11
+- Introduced fractal "part of period" pattern across three scales
+- Expanded test suite to 140 acceptance tests
+- Updated documentation to explain new progression pattern
 
 *** 0.1.0 (2025)
 
