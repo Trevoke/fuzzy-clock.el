@@ -2,7 +2,7 @@
 #+AUTHOR: Fuzzy Clock Contributors
 #+DATE: 2025
 
-* First Contact: What is This and Why Should You Care?
+* Introduction
 
 ** What is fuzzy-clock.el?
 
@@ -47,7 +47,7 @@ If you:
 
 Then yes, keep reading.
 
-* The Black Triangle: Your First Fuzzy Clock in 30 Seconds
+* Getting Started
 
 Let's get you to a working fuzzy clock as quickly as possible.
 
@@ -105,7 +105,7 @@ You now have fuzzy time in your mode-line. But "Three o'clock" might still be mo
 
 This is where fuzziness levels come in. Let's learn about them.
 
-* The Hairball: Understanding Fuzzy Time
+* Understanding Fuzzy Time
 
 This section will teach you how to *think* about fuzzy time, not just how to configure it.
 
@@ -542,7 +542,7 @@ You now understand:
 
 You're no longer just a user of fuzzy-clock. You understand its *principles*. You can make informed decisions about fuzziness levels. You can explain to others why you use it.
 
-* The Reference: Complete Technical Documentation
+* Reference
 
 This section is for quick lookup when you know what you're looking for.
 
