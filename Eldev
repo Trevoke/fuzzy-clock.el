@@ -1,0 +1,8 @@
+; -*- mode: emacs-lisp; lexical-binding: t; -*-
+
+(eldev-use-package-archive 'melpa)
+
+(eldev-use-plugin 'autoloads)
+
+;; Testing with buttercup
+(eldev-add-extra-dependencies 'test 'buttercup)

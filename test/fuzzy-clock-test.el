@@ -1,0 +1,580 @@
+;;; fuzzy-clock-test.el --- Tests for fuzzy-clock -*- lexical-binding: t; -*-
+
+;;; Commentary:
+;; Acceptance and unit tests for fuzzy-clock package
+
+;;; Code:
+
+(require 'buttercup)
+(require 'fuzzy-clock)
+
+;;; Acceptance Tests
+;; These tests define the complete expected behavior of the fuzzy clock
+
+(describe "Fuzzy Clock Acceptance Tests"
+
+  (describe "Level 1: Every 5 minutes fuzziness"
+    ;; At this level, time is rounded to the nearest 5-minute interval
+    ;; and expressed in natural language
+
+    (it "should say 'Three o'clock' at 3:00"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 0)
+              :to-equal "Three o'clock"))
+
+    (it "should say 'Five past three' at 3:05"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 5)
+              :to-equal "Five past three"))
+
+    (it "should say 'Ten past three' at 3:10"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 10)
+              :to-equal "Ten past three"))
+
+    (it "should say 'Quarter past three' at 3:15"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 15)
+              :to-equal "Quarter past three"))
+
+    (it "should say 'Twenty past three' at 3:20"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 20)
+              :to-equal "Twenty past three"))
+
+    (it "should say 'Twenty five past three' at 3:25"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 25)
+              :to-equal "Twenty five past three"))
+
+    (it "should say 'Half past three' at 3:30"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 30)
+              :to-equal "Half past three"))
+
+    (it "should say 'Twenty five to four' at 3:35"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 35)
+              :to-equal "Twenty five to four"))
+
+    (it "should say 'Twenty to four' at 3:40"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 40)
+              :to-equal "Twenty to four"))
+
+    (it "should say 'Quarter to four' at 3:45"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 45)
+              :to-equal "Quarter to four"))
+
+    (it "should say 'Ten to four' at 3:50"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 50)
+              :to-equal "Ten to four"))
+
+    (it "should say 'Five to four' at 3:55"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 55)
+              :to-equal "Five to four"))
+
+    (it "should handle midnight correctly"
+      (expect (fuzzy-clock-format-time 'five-minutes 0 0)
+              :to-equal "Midnight"))
+
+    (it "should handle noon correctly"
+      (expect (fuzzy-clock-format-time 'five-minutes 12 0)
+              :to-equal "Noon"))
+
+    ;; Rounding tests for non-exact 5-minute intervals
+    (it "should round 3:03 to 'Five past three'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 3)
+              :to-equal "Five past three"))
+
+    (it "should round 3:07 to 'Five past three'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 7)
+              :to-equal "Five past three"))
+
+    (it "should round 3:13 to 'Quarter past three'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 13)
+              :to-equal "Quarter past three"))
+
+    (it "should round 3:23 to 'Twenty five past three'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 23)
+              :to-equal "Twenty five past three"))
+
+    (it "should round 3:38 to 'Twenty to four'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 38)
+              :to-equal "Twenty to four"))
+
+    (it "should round 3:47 to 'Quarter to four'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 47)
+              :to-equal "Quarter to four"))
+
+    (it "should round 3:52 to 'Ten to four'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 52)
+              :to-equal "Ten to four"))
+
+    (it "should round 3:58 to 'Four o'clock'"
+      (expect (fuzzy-clock-format-time 'five-minutes 3 58)
+              :to-equal "Four o'clock")))
+
+  (describe "Level 2: Every 15 minutes fuzziness"
+    ;; At this level, time is rounded to the nearest 15-minute interval
+
+    (it "should say 'Three o'clock' at 3:00"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 3 0)
+              :to-equal "Three o'clock"))
+
+    (it "should say 'Quarter past three' at 3:15"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 3 15)
+              :to-equal "Quarter past three"))
+
+    (it "should say 'Half past three' at 3:30"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 3 30)
+              :to-equal "Half past three"))
+
+    (it "should say 'Quarter to four' at 3:45"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 3 45)
+              :to-equal "Quarter to four"))
+
+    (it "should round 3:07 to 'Quarter past three'"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 3 7)
+              :to-equal "Quarter past three"))
+
+    (it "should round 3:37 to 'Half past three'"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 3 37)
+              :to-equal "Half past three"))
+
+    (it "should handle midnight correctly"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 0 0)
+              :to-equal "Midnight"))
+
+    (it "should handle noon correctly"
+      (expect (fuzzy-clock-format-time 'fifteen-minutes 12 0)
+              :to-equal "Noon")))
+
+  (describe "Level 3: Half hour fuzziness"
+    ;; At this level, time is rounded to the nearest half hour
+
+    (it "should say 'Three o'clock' at 3:00"
+      (expect (fuzzy-clock-format-time 'half-hour 3 0)
+              :to-equal "Three o'clock"))
+
+    (it "should say 'Half past three' at 3:30"
+      (expect (fuzzy-clock-format-time 'half-hour 3 30)
+              :to-equal "Half past three"))
+
+    (it "should round 3:14 to 'Three o'clock'"
+      (expect (fuzzy-clock-format-time 'half-hour 3 14)
+              :to-equal "Three o'clock"))
+
+    (it "should round 3:15 to 'Half past three'"
+      (expect (fuzzy-clock-format-time 'half-hour 3 15)
+              :to-equal "Half past three"))
+
+    (it "should round 3:44 to 'Half past three'"
+      (expect (fuzzy-clock-format-time 'half-hour 3 44)
+              :to-equal "Half past three"))
+
+    (it "should round 3:45 to 'Four o'clock'"
+      (expect (fuzzy-clock-format-time 'half-hour 3 45)
+              :to-equal "Four o'clock"))
+
+    (it "should handle midnight correctly"
+      (expect (fuzzy-clock-format-time 'half-hour 0 0)
+              :to-equal "Midnight"))
+
+    (it "should handle noon correctly"
+      (expect (fuzzy-clock-format-time 'half-hour 12 0)
+              :to-equal "Noon")))
+
+  (describe "Level 4: Hour fuzziness"
+    ;; At this level, time is rounded to the nearest hour
+
+    (it "should say 'Three o'clock' at 3:00"
+      (expect (fuzzy-clock-format-time 'hour 3 0)
+              :to-equal "Three o'clock"))
+
+    (it "should say 'Three o'clock' at 3:29"
+      (expect (fuzzy-clock-format-time 'hour 3 29)
+              :to-equal "Three o'clock"))
+
+    (it "should say 'Four o'clock' at 3:30"
+      (expect (fuzzy-clock-format-time 'hour 3 30)
+              :to-equal "Four o'clock"))
+
+    (it "should say 'Four o'clock' at 3:45"
+      (expect (fuzzy-clock-format-time 'hour 3 45)
+              :to-equal "Four o'clock"))
+
+    (it "should handle midnight correctly"
+      (expect (fuzzy-clock-format-time 'hour 0 0)
+              :to-equal "Midnight"))
+
+    (it "should handle noon correctly"
+      (expect (fuzzy-clock-format-time 'hour 12 0)
+              :to-equal "Noon"))
+
+    (it "should handle transition to midnight"
+      (expect (fuzzy-clock-format-time 'hour 23 45)
+              :to-equal "Midnight")))
+
+  (describe "Level 5: Part of day fuzziness"
+    ;; At this level, time is expressed as part of the day
+
+    (it "should say 'Night' at 0:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 0 0)
+              :to-equal "Night"))
+
+    (it "should say 'Night' at 4:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 4 0)
+              :to-equal "Night"))
+
+    (it "should say 'Morning' at 6:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 6 0)
+              :to-equal "Morning"))
+
+    (it "should say 'Morning' at 11:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 11 0)
+              :to-equal "Morning"))
+
+    (it "should say 'Afternoon' at 12:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 12 0)
+              :to-equal "Afternoon"))
+
+    (it "should say 'Afternoon' at 17:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 17 0)
+              :to-equal "Afternoon"))
+
+    (it "should say 'Evening' at 18:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 18 0)
+              :to-equal "Evening"))
+
+    (it "should say 'Evening' at 21:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 21 0)
+              :to-equal "Evening"))
+
+    (it "should say 'Night' at 22:00"
+      (expect (fuzzy-clock-format-time 'part-of-day 22 0)
+              :to-equal "Night"))
+
+    (it "should say 'Night' at 23:59"
+      (expect (fuzzy-clock-format-time 'part-of-day 23 59)
+              :to-equal "Night")))
+
+  (describe "Level 6: Day of week fuzziness"
+    ;; At this level, time is expressed as the day of the week
+    ;; Function signature: (fuzziness hour minute &optional day month year dow dst utcoff)
+    ;; DOW: 0=Sunday, 1=Monday, 2=Tuesday, 3=Wednesday, 4=Thursday, 5=Friday, 6=Saturday
+
+    (it "should say 'Sunday' for Sunday"
+      ;; hour=12, minute=0, day=27, month=10, year=2024, dow=0 (Sunday)
+      (expect (fuzzy-clock-format-time 'day-of-week 12 0 27 10 2024 0 nil -25200)
+              :to-equal "Sunday"))
+
+    (it "should say 'Monday' for Monday"
+      ;; hour=12, minute=0, day=28, month=10, year=2024, dow=1 (Monday)
+      (expect (fuzzy-clock-format-time 'day-of-week 12 0 28 10 2024 1 nil -25200)
+              :to-equal "Monday"))
+
+    (it "should say 'Tuesday' for Tuesday"
+      (expect (fuzzy-clock-format-time 'day-of-week 12 0 29 10 2024 2 nil -25200)
+              :to-equal "Tuesday"))
+
+    (it "should say 'Wednesday' for Wednesday"
+      (expect (fuzzy-clock-format-time 'day-of-week 12 0 30 10 2024 3 nil -25200)
+              :to-equal "Wednesday"))
+
+    (it "should say 'Thursday' for Thursday"
+      (expect (fuzzy-clock-format-time 'day-of-week 12 0 31 10 2024 4 nil -25200)
+              :to-equal "Thursday"))
+
+    (it "should say 'Friday' for Friday"
+      (expect (fuzzy-clock-format-time 'day-of-week 12 0 1 11 2024 5 nil -25200)
+              :to-equal "Friday"))
+
+    (it "should say 'Saturday' for Saturday"
+      (expect (fuzzy-clock-format-time 'day-of-week 12 0 2 11 2024 6 nil -25200)
+              :to-equal "Saturday")))
+
+  (describe "Level 7: Week fuzziness"
+    ;; At this level, time is expressed as the ISO week number
+    ;; ISO week numbers run from 1-53
+    ;; We'll test with known ISO week numbers for specific dates
+
+    (it "should say 'Week 1' for early January (ISO week 1)"
+      ;; January 1, 2024 is in ISO week 1
+      (expect (fuzzy-clock-format-time 'week 12 0 1 1 2024 1 nil -25200)
+              :to-equal "Week 1"))
+
+    (it "should say 'Week 43' for late October"
+      ;; October 24, 2024 is in ISO week 43
+      (expect (fuzzy-clock-format-time 'week 12 0 24 10 2024 4 nil -25200)
+              :to-equal "Week 43"))
+
+    (it "should say 'Week 52' for late December"
+      ;; December 26, 2024 is in ISO week 52
+      (expect (fuzzy-clock-format-time 'week 12 0 26 12 2024 4 nil -25200)
+              :to-equal "Week 52")))
+
+  (describe "Level 8: Month fuzziness"
+    ;; At this level, time is expressed as the month name
+    ;; Test all 12 months
+
+    (it "should say 'January' for month 1"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 1 2024 1 nil -25200)
+              :to-equal "January"))
+
+    (it "should say 'February' for month 2"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 2 2024 4 nil -25200)
+              :to-equal "February"))
+
+    (it "should say 'March' for month 3"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 3 2024 5 nil -25200)
+              :to-equal "March"))
+
+    (it "should say 'April' for month 4"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 4 2024 1 nil -25200)
+              :to-equal "April"))
+
+    (it "should say 'May' for month 5"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 5 2024 3 nil -25200)
+              :to-equal "May"))
+
+    (it "should say 'June' for month 6"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 6 2024 6 nil -25200)
+              :to-equal "June"))
+
+    (it "should say 'July' for month 7"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 7 2024 1 nil -25200)
+              :to-equal "July"))
+
+    (it "should say 'August' for month 8"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 8 2024 4 nil -25200)
+              :to-equal "August"))
+
+    (it "should say 'September' for month 9"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 9 2024 0 nil -25200)
+              :to-equal "September"))
+
+    (it "should say 'October' for month 10"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 10 2024 2 nil -25200)
+              :to-equal "October"))
+
+    (it "should say 'November' for month 11"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 11 2024 5 nil -25200)
+              :to-equal "November"))
+
+    (it "should say 'December' for month 12"
+      (expect (fuzzy-clock-format-time 'month 12 0 15 12 2024 0 nil -25200)
+              :to-equal "December")))
+
+  (describe "Level 9: Season fuzziness integration"
+    ;; At this level, time is expressed as the current season via fuzzy-clock-format-time
+    ;; Seasons are based on month: Winter (12,1,2), Spring (3,4,5), Summer (6,7,8), Fall (9,10,11)
+
+    (it "should say 'Winter' in December"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 12 2024 0 nil -25200)
+              :to-equal "Winter"))
+
+    (it "should say 'Winter' in January"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 1 2025 3 nil -25200)
+              :to-equal "Winter"))
+
+    (it "should say 'Winter' in February"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 2 2025 6 nil -25200)
+              :to-equal "Winter"))
+
+    (it "should say 'Spring' in March"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 3 2025 6 nil -25200)
+              :to-equal "Spring"))
+
+    (it "should say 'Spring' in April"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 4 2025 2 nil -25200)
+              :to-equal "Spring"))
+
+    (it "should say 'Spring' in May"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 5 2025 4 nil -25200)
+              :to-equal "Spring"))
+
+    (it "should say 'Summer' in June"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 6 2025 0 nil -25200)
+              :to-equal "Summer"))
+
+    (it "should say 'Summer' in July"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 7 2025 2 nil -25200)
+              :to-equal "Summer"))
+
+    (it "should say 'Summer' in August"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 8 2025 5 nil -25200)
+              :to-equal "Summer"))
+
+    (it "should say 'Fall' in September"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 9 2025 1 nil -25200)
+              :to-equal "Fall"))
+
+    (it "should say 'Fall' in October"
+      (expect (fuzzy-clock-format-time 'season 12 0 30 10 2025 4 nil -25200)
+              :to-equal "Fall"))
+
+    (it "should say 'Fall' in November"
+      (expect (fuzzy-clock-format-time 'season 12 0 15 11 2025 6 nil -25200)
+              :to-equal "Fall")))
+
+  (describe "Season helper function (fuzzy-clock-format-season)"
+    ;; Tests for the standalone season formatting function
+
+    (it "should say 'Winter' in December"
+      (expect (fuzzy-clock-format-season 12)
+              :to-equal "Winter"))
+
+    (it "should say 'Winter' in January"
+      (expect (fuzzy-clock-format-season 1)
+              :to-equal "Winter"))
+
+    (it "should say 'Winter' in February"
+      (expect (fuzzy-clock-format-season 2)
+              :to-equal "Winter"))
+
+    (it "should say 'Spring' in March"
+      (expect (fuzzy-clock-format-season 3)
+              :to-equal "Spring"))
+
+    (it "should say 'Spring' in April"
+      (expect (fuzzy-clock-format-season 4)
+              :to-equal "Spring"))
+
+    (it "should say 'Spring' in May"
+      (expect (fuzzy-clock-format-season 5)
+              :to-equal "Spring"))
+
+    (it "should say 'Summer' in June"
+      (expect (fuzzy-clock-format-season 6)
+              :to-equal "Summer"))
+
+    (it "should say 'Summer' in July"
+      (expect (fuzzy-clock-format-season 7)
+              :to-equal "Summer"))
+
+    (it "should say 'Summer' in August"
+      (expect (fuzzy-clock-format-season 8)
+              :to-equal "Summer"))
+
+    (it "should say 'Fall' in September"
+      (expect (fuzzy-clock-format-season 9)
+              :to-equal "Fall"))
+
+    (it "should say 'Fall' in October"
+      (expect (fuzzy-clock-format-season 10)
+              :to-equal "Fall"))
+
+    (it "should say 'Fall' in November"
+      (expect (fuzzy-clock-format-season 11)
+              :to-equal "Fall"))))
+
+(describe "Fuzzy Clock Mode-line Integration"
+  ;; Acceptance tests for mode-line integration
+  ;; The mode should be a global minor mode that displays fuzzy time
+
+  (describe "fuzzy-clock-mode global minor mode"
+    (it "should be defined as a command"
+      (expect (fboundp 'fuzzy-clock-mode) :to-be-truthy))
+
+    (it "should have a mode variable that starts as nil"
+      (expect (boundp 'fuzzy-clock-mode) :to-be-truthy)
+      (expect fuzzy-clock-mode :to-be nil))
+
+    (it "should enable the mode when called"
+      (fuzzy-clock-mode 1)
+      (expect fuzzy-clock-mode :to-be-truthy))
+
+    (it "should disable the mode when called with -1"
+      (fuzzy-clock-mode 1)  ; Enable first
+      (fuzzy-clock-mode -1) ; Then disable
+      (expect fuzzy-clock-mode :to-be nil)))
+
+  (describe "mode-line display"
+    (it "should mark fuzzy-clock-string as risky-local-variable for mode-line display"
+      ;; Mode-line variables must be marked as risky to be evaluated safely in the mode-line
+      ;; This prevents the "*invalid*" error when the variable is displayed
+      (expect (get 'fuzzy-clock-string 'risky-local-variable) :to-be t))
+
+    (it "should add fuzzy time string to global-mode-string when enabled"
+      (fuzzy-clock-mode -1) ; Ensure it's disabled first
+      (expect (member '(:eval fuzzy-clock-string) global-mode-string) :to-be nil)
+      (fuzzy-clock-mode 1)
+      (expect (member '(:eval fuzzy-clock-string) global-mode-string) :not :to-be nil))
+
+    (it "should remove fuzzy time string from global-mode-string when disabled"
+      (fuzzy-clock-mode 1)  ; Enable first
+      (expect (member '(:eval fuzzy-clock-string) global-mode-string) :not :to-be nil)
+      (fuzzy-clock-mode -1) ; Disable
+      (expect (member '(:eval fuzzy-clock-string) global-mode-string) :to-be nil))
+
+    (it "should populate fuzzy-clock-string with current time when enabled"
+      (fuzzy-clock-mode 1)
+      (expect fuzzy-clock-string :not :to-be nil)
+      (expect (stringp fuzzy-clock-string) :to-be-truthy))
+
+    (it "should format fuzzy-clock-string with leading space for mode-line display"
+      (fuzzy-clock-mode 1)
+      (expect fuzzy-clock-string :not :to-be nil)
+      (expect (string-prefix-p " " fuzzy-clock-string) :to-be-truthy)
+      (expect (stringp fuzzy-clock-string) :to-be-truthy))
+
+    (it "should use :eval construct for mode-line display"
+      ;; ACCEPTANCE TEST: This verifies we're using the correct mode-line construct.
+      ;; Mode-lines require (:eval VARIABLE) not just 'VARIABLE for proper display.
+      ;; The bare symbol 'fuzzy-clock-string doesn't evaluate in mode-line context.
+      (fuzzy-clock-mode 1)
+      ;; Find the fuzzy-clock entry in global-mode-string
+      (let ((found-entry (seq-find
+                          (lambda (entry)
+                            (and (listp entry)
+                                 (eq (car entry) :eval)
+                                 (eq (cadr entry) 'fuzzy-clock-string)))
+                          global-mode-string)))
+        (expect found-entry :not :to-be nil)
+        (expect (car found-entry) :to-equal :eval)
+        (expect (cadr found-entry) :to-equal 'fuzzy-clock-string))))
+
+  (describe "fuzziness configuration"
+    (it "should have a customizable fuzziness level variable"
+      (expect (boundp 'fuzzy-clock-fuzziness) :to-be-truthy)))
+
+  (describe "auto-update functionality"
+    (it "should have a customizable update interval"
+      (expect (boundp 'fuzzy-clock-update-interval) :to-be-truthy))
+
+    (it "should create a timer when mode is enabled"
+      (fuzzy-clock-mode -1) ; Ensure disabled
+      (fuzzy-clock-mode 1)  ; Enable
+      (expect (boundp 'fuzzy-clock-timer) :to-be-truthy)
+      (expect fuzzy-clock-timer :not :to-be nil))
+
+    (it "should cancel the timer when mode is disabled"
+      (fuzzy-clock-mode 1)   ; Enable
+      (expect fuzzy-clock-timer :not :to-be nil)
+      (fuzzy-clock-mode -1)  ; Disable
+      (expect fuzzy-clock-timer :to-be nil))))
+
+(describe "Fuzzy Clock Buffer Display"
+  ;; Tests for dedicated buffer display
+
+  (describe "fuzzy-clock-display-buffer command"
+    (it "should be defined as a command"
+      (expect (fboundp 'fuzzy-clock-display-buffer) :to-be-truthy))
+
+    (it "should create or switch to a buffer named *Fuzzy Clock*"
+      (when (get-buffer "*Fuzzy Clock*")
+        (kill-buffer "*Fuzzy Clock*"))
+      (fuzzy-clock-display-buffer)
+      (expect (get-buffer "*Fuzzy Clock*") :not :to-be nil)
+      (expect (buffer-name (current-buffer)) :to-equal "*Fuzzy Clock*"))
+
+    (it "should display the current fuzzy time in the buffer"
+      (when (get-buffer "*Fuzzy Clock*")
+        (kill-buffer "*Fuzzy Clock*"))
+      (fuzzy-clock-display-buffer)
+      (with-current-buffer "*Fuzzy Clock*"
+        (let ((content (buffer-string)))
+          (expect (> (length content) 0) :to-be-truthy))))))
+
+(describe "Fuzzy Clock Minibuffer Display"
+  ;; Tests for minibuffer display command
+
+  (describe "fuzzy-clock-show command"
+    (it "should be defined as a command"
+      (expect (fboundp 'fuzzy-clock-show) :to-be-truthy))))
+
+(provide 'fuzzy-clock-test)
+
+;;; fuzzy-clock-test.el ends here
