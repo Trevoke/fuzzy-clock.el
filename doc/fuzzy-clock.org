@@ -6,44 +6,43 @@
 
 ** What is fuzzy-clock.el?
 
-Fuzzy Clock is an Emacs package that displays time the way humans naturally think about it.
+Fuzzy Clock is an Emacs package that displays time in increasingly vague and absurd ways.
 
-Instead of seeing =14:32=, you see "Half past two".
-Instead of =09:47=, you see "Quarter to ten".
+Instead of seeing =14:32=, you could see "Half past two".
 
-** Why does this matter?
+Or "Afternoon".
 
-Think about how you actually use time when talking to other people:
+Or "Tuesday".
 
-- "Let's meet around three" — not "Let's meet at 15:00:00"
-- "I'll be there in half an hour" — not "I'll be there at 14:30 precisely"
-- "See you this afternoon" — not "See you between 12:00 and 18:00"
+Or "Middle Fall".
 
-Humans think in approximations. We naturally round time to convenient chunks.
+Or just "2025" for the entire year.
 
-** The problem with precise time
+Yes, really.
 
-When you glance at your mode-line and see =14:32=, your brain does extra work:
-1. Parse the numbers
-2. Convert to 12-hour time (2:32 PM)
-3. Round it to something useful ("about half past two")
+** Why does this exist?
 
-This happens dozens of times a day. It's cognitive overhead you don't need.
+Because someone thought "What if my mode-line just said 'Afternoon' for six hours straight?" and decided that was a reasonable idea.
 
-** The fuzzy-clock solution
+Also, the KDE fuzzy clock widget exists, which means this madness has precedent.
 
-Fuzzy Clock does that mental rounding for you. It shows time the way you already think about it.
+** Is this useful?
 
-More importantly, *it helps you relate to time differently*. When your mode-line says "Afternoon" instead of "14:32", you're less likely to obsess over every passing minute. It's a gentler, more humane relationship with time.
+Maybe! Some people claim it helps them:
+- Stop obsessing over every passing minute
+- Think in natural language instead of numbers
+- Feel less anxious about time
+- Annoy their coworkers when pair programming
+
+But let's be honest: you're probably here because the idea of your mode-line displaying "Late Winter" sounds either delightful or horrifying, and you need to find out which.
 
 ** Should you keep reading?
 
 If you:
-- Find yourself constantly checking the clock
-- Want to reduce time anxiety
-- Prefer natural language over numbers
-- Like KDE's fuzzy clock widget
-- Want Emacs to feel more human
+- Think "Early October" is a valid time
+- Want to reduce time anxiety (or increase it dramatically)
+- Enjoy things that are technically functional but philosophically questionable
+- Have ever thought "I wish my clock was less helpful"
 
 Then yes, keep reading.
 
@@ -101,28 +100,25 @@ Don't like it? Turn it off just as easily:
 
 ** What's next?
 
-You now have fuzzy time in your mode-line. But "Three o'clock" might still be more precise than you want. Or maybe it's *not* precise enough.
+You now have fuzzy time in your mode-line. But "Three o'clock" might still be more precise than you want.
 
-This is where fuzziness levels come in. Let's learn about them.
+This is where things get weird.
 
 * Understanding Fuzzy Time
 
-This section will teach you how to *think* about fuzzy time, not just how to configure it.
+Or: "How vague do you want to be?"
 
 ** The Core Concept: Fuzziness Levels
 
-The key insight of fuzzy-clock is this: *time has different resolutions depending on context*.
+Fuzzy Clock has *eleven* different levels of vagueness.
 
-Consider these conversations:
+At Level 1, you get normal human time like "Quarter past three."
 
-- "What time is it?" — "Quarter past three"
-- "When do you wake up?" — "Morning"
-- "When's the deadline?" — "Next week"
-- "When were you born?" — "Winter 1985"
+At Level 11, your mode-line just says "2025" for twelve months straight.
 
-Each answer uses a different resolution of time. They're all correct. They're all useful. The resolution depends on what matters.
+The progression goes from "reasonably fuzzy" to "okay this is getting silly" to "wait, is this even a clock anymore?"
 
-Fuzzy Clock gives you 11 different resolutions. Let's understand them from the inside out.
+But here's the thing: they all actually work. Let's see how ridiculous this gets.
 
 ** Level 4: Hour (The Default)
 
@@ -229,7 +225,7 @@ Now we've zoomed out even further. Hours don't matter. The specific day matters.
 
 This is useful when you're thinking about your week as a whole. "It's Tuesday" is more meaningful than "It's 14:32 on Tuesday" when you're planning weekly tasks.
 
-** Level 7: Part of Month
+** Level 7: Part of Month (Where It Gets Weird)
 
 #+begin_src emacs-lisp
 (setq fuzzy-clock-fuzziness 'part-of-month)
@@ -237,16 +233,16 @@ This is useful when you're thinking about your week as a whole. "It's Tuesday" i
 
 Your mode-line shows: "Early October", "Middle October", "Late October"
 
-This introduces a new pattern: subdividing a period into parts. The month is divided into three phases:
+Congratulations, you're now telling time with *vibes*.
+
+The month is divided into three phases:
 - Days 1-10: Early
 - Days 11-20: Middle
 - Days 21-end: Late
 
-Why does this matter? Because "Early October" and "Late October" feel different. Early in the month, you're fresh from the previous month. Late in the month, you're anticipating the next.
+Is "Early October" a valid time? Technically no. Will it annoy people? Absolutely. Does it somehow work? Kind of!
 
-This level acknowledges that *position within a cycle matters*.
-
-*When to use this:* When monthly cycles matter but specific dates don't. Useful for monthly billing cycles, paycheck rhythms, or project phases that span weeks but not the full month.
+*When to use this:* When you want to think in monthly cycles but still pretend you're tracking time. Good for confusing meeting scheduling bots.
 
 ** Level 8: Month
 
@@ -258,7 +254,7 @@ Your mode-line shows: "January", "October", etc.
 
 Useful for thinking about the year as a whole. "It's October" tells you where you are in the annual cycle.
 
-** Level 9: Part of Season
+** Level 9: Part of Season (Committing to the Bit)
 
 #+begin_src emacs-lisp
 (setq fuzzy-clock-fuzziness 'part-of-season)
@@ -266,18 +262,18 @@ Useful for thinking about the year as a whole. "It's October" tells you where yo
 
 Your mode-line shows: "Early Fall", "Middle Fall", "Late Fall"
 
-The pattern from Level 7 returns. Now we're subdividing seasons instead of months.
+We've abandoned all pretense of this being a clock now. This is just vibes all the way down.
 
 Each season has three months, and each month represents a phase:
 - First month: Early (December = Early Winter, March = Early Spring, etc.)
 - Second month: Middle (January = Middle Winter, April = Middle Spring, etc.)
 - Third month: Late (February = Late Winter, May = Late Spring, etc.)
 
-"Early Winter" (December) feels different from "Late Winter" (February). One is anticipatory, the other transitional. The language captures this.
+Your mode-line will say "Middle Fall" for the entirety of October. All of it. Every meeting, every deadline, every "what time is it?" — just "Middle Fall."
 
-*When to use this:* When you're thinking in seasonal cycles but want to distinguish between the beginning and end of a season. Useful for agricultural planning, seasonal affective disorder awareness, or long-term project phases.
+*When to use this:* When you've given up on punctuality entirely. When you want people to think you're either very zen or very confused.
 
-** Level 10: Part of Year
+** Level 10: Part of Year (Why Not?)
 
 #+begin_src emacs-lisp
 (setq fuzzy-clock-fuzziness 'part-of-year)
@@ -285,63 +281,63 @@ Each season has three months, and each month represents a phase:
 
 Your mode-line shows: "Early 2025", "Middle 2025", "Late 2025"
 
-Again, the three-part pattern. The year is divided into:
+At this point we're not even trying to be useful. The year is divided into:
 - Months 1-4: Early (January through April)
 - Months 5-8: Middle (May through August)
 - Months 9-12: Late (September through December)
 
-This level is about annual rhythm. "Early 2025" carries the energy of new beginnings, fresh starts, New Year's resolutions. "Late 2025" carries the weight of the year behind you, the approaching close of an annual cycle.
+Your mode-line will say "Early 2025" from January through April. That's four months. One third of the year. With the same time display.
 
-*When to use this:* For multi-year projects where individual months don't matter. For thinking about fiscal years, academic years, or personal annual planning. When you want year awareness without monthly granularity.
+This is either deeply calming or deeply unsettling. There is no middle ground.
 
-** Level 11: Year (Maximum Fuzziness)
+*When to use this:* When someone asks "What time is it?" and you want to answer "Late 2025" with a completely straight face.
+
+** Level 11: Year (The Final Boss)
 
 #+begin_src emacs-lisp
 (setq fuzzy-clock-fuzziness 'year)
 #+end_src
 
-Your mode-line shows: "2025", "2026", etc.
+Your mode-line shows: "2025"
 
-This is the most abstract level. Time reduced to its yearly marker.
+We did it. We've achieved maximum vagueness. Your clock now displays "2025" for twelve consecutive months.
 
-Just the year. No month, no season, no day. Only the position in the largest cycle most people think about.
+Is this useful? No.
+Is this a clock? Debatable.
+Does it spark joy? Maybe!
 
-*When to use this:* Honestly? Probably never in your mode-line. But it completes the pattern. It's the logical endpoint of progressive abstraction. It reminds you that sometimes, the only time that matters is *what year it is*.
+*When to use this:* When you want to know what year it is but literally nothing else. When you're working on geological timescales. When you've transcended time itself but still need to know if it's a leap year.
 
-This level is more philosophical than practical. It exists to complete the conceptual model of zooming out from minutes to years.
+This exists purely because we could, not because we should.
 
-** The Pattern: Zooming Out
+** The Pattern: Or, "How We Justified This"
 
 Notice the pattern in these levels:
 
-1. Five minutes — Subdividing hours
-2. Fifteen minutes — Subdividing hours
-3. Half hour — Subdividing hours
-4. Hour — The natural unit
-5. Part of day — Subdividing days
-6. Day of week — The natural unit
-7. Part of month — Subdividing months
-8. Month — The natural unit
-9. Part of season — Subdividing seasons
-10. Part of year — Subdividing years
-11. Year — The natural unit
+1. Five minutes — Useful
+2. Fifteen minutes — Still useful
+3. Half hour — Getting fuzzy
+4. Hour — The sweet spot
+5. Part of day — Okay, this works
+6. Day of week — Sure, why not
+7. Part of month — Wait what
+8. Month — Back to reasonable
+9. Part of season — *Deeply* questionable
+10. Part of year — Are we okay?
+11. Year — We've gone too far
 
-There's a deeper pattern emerging: *alternation between parts and wholes*.
+There's actually a pattern here (we swear this wasn't just random):
 
-- Levels 1-4: Subdivide hours → culminate in Hour
-- Levels 5-6: Subdivide days → culminate in Day of Week
-- Levels 7-8: Subdivide months → culminate in Month
-- Levels 9-10: Subdivide seasons and years → culminate in Year
-
-The "part of period" pattern (early/middle/late) appears at three scales:
+The "part of period" thing (early/middle/late) appears at three scales:
 - Part of month (days 1-10, 11-20, 21+)
 - Part of season (first/second/third month)
 - Part of year (months 1-4, 5-8, 9-12)
 
-This creates a *fractal structure*. The same three-part division works whether you're subdividing a month, a season, or a year. It's a natural way humans think about position within cycles.
+It's like a fractal, if fractals were made of increasingly absurd time displays.
 
-Levels 1-4 are about *precision within a day*.
-Levels 5-11 are about *position within larger cycles*.
+Levels 1-4: Actual time tracking
+Levels 5-6: Time but make it chill
+Levels 7-11: Is this even a clock anymore
 
 ** Choosing Your Fuzziness Level
 
@@ -560,48 +556,44 @@ Now you can switch fuzziness levels based on context:
 - ~C-c t p~ → Precise mode (five-minutes)
 - ~C-c t d~ → Default mode (hour)
 
-** Advanced Topic: Time as a Human Experience
+** Advanced Topic: Wait, Is This Actually Deep?
 
-We've covered the mechanics. Now let's talk about *why* this matters philosophically.
+Okay, look. We've been joking around, but there's something here.
 
-Modern digital time (14:32:47) is a recent invention. For most of human history, people used:
-- Sundials (position of the sun)
-- Church bells (hours)
-- Natural language ("around noon", "evening")
+Digital time (14:32:47) is weirdly precise for how humans actually think. Nobody says "Let's meet at fourteen thirty-two." We say "around half past two" or "afternoon."
 
-We evolved to think about time in *approximate, contextual* terms.
+When you use fuzzy time, you're acknowledging that most of the time, you don't actually need to know it's 14:32. You need to know it's "afternoon" or "about three."
 
-Digital clocks are *precise* but not *human*. They show an accuracy we don't need and can't use. When you see "14:32", you immediately translate it to "about half past two". Your brain does this automatically.
+Does this reduce time anxiety? Maybe!
+Does it help you focus? Possibly!
+Will it make you late to meetings? Absolutely not, you have a phone.
 
-Fuzzy Clock eliminates that translation step. It shows you time in the format your brain *actually* uses.
+The real magic is that "Afternoon" doesn't change for six hours. You stop checking your mode-line every thirty seconds because it literally won't tell you anything new.
 
-More importantly, it changes your *relationship* with time:
+This is either:
+- A feature that helps you focus
+- A bug that makes the package useless
+- Both simultaneously (Schrödinger's clock)
 
-- Precise time encourages constant checking, anxiety, urgency
-- Fuzzy time encourages flow states, presence, calm
-
-When your mode-line says "Afternoon" for six hours straight, you stop obsessing over every minute. You start thinking in *periods* and *rhythms* instead of *deadlines* and *urgency*.
-
-This is especially valuable for people who:
-- Work in deep focus modes
-- Struggle with time anxiety
-- Want to be less "clock-driven"
-- Practice mindfulness or meditation
-- Work on creative tasks
-
-You can still have a clock. You can still make meetings. But you're not *enslaved* to the minute-by-minute tick.
+Use at your own risk. Results may include:
+- Reduced time anxiety
+- Increased confusion
+- Coworkers asking why your Emacs says "Middle Fall"
+- Accidentally missing meetings (use a real clock for those)
 
 ** What You've Learned
 
 You now understand:
 
-1. *Why* fuzzy time exists (human-centered time display)
-2. *How* fuzziness levels work (9 levels from precise to abstract)
-3. *When* to use each level (context-dependent)
-4. *How* to configure it for your needs
-5. *Why* it matters philosophically
+1. How to make your Emacs tell time in increasingly questionable ways
+2. That there are 11 levels of fuzziness, and only like 6 of them are reasonable
+3. That "Middle Fall" is technically a time if you squint hard enough
+4. How to configure your mode-line to confuse everyone around you
+5. That this might actually help with focus, or it might just be silly, or both
 
-You're no longer just a user of fuzzy-clock. You understand its *principles*. You can make informed decisions about fuzziness levels. You can explain to others why you use it.
+You're now equipped to use fuzzy-clock. Whether you *should* use it is between you and your sense of judgment.
+
+Good luck explaining "Early 2025" to your pair programming partner.
 
 * Reference
 
