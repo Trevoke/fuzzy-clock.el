@@ -3,11 +3,17 @@
 
 * What is this?
 
-Fuzzy Clock displays time in Emacs the way humans naturally think about it.
+Fuzzy Clock displays time in Emacs in increasingly vague and delightful ways.
 
 Instead of =14:32=, you see "Half past two".
 
-Instead of obsessing over every minute, you see "Afternoon".
+Or "Afternoon".
+
+Or "Middle Fall".
+
+Or just "2025" for an entire year.
+
+Yes, really.
 
 * Quick Start
 
@@ -21,30 +27,31 @@ Look at your mode-line. You should see something like "Three o'clock" or "Aftern
 
 * Why?
 
-Humans don't think in precise time. We think in approximations:
-- "Let's meet around three"
-- "I'll be there in half an hour"
-- "See you this afternoon"
+Because someone thought "What if my mode-line just said 'Afternoon' for six hours straight?" and decided that was a reasonable idea.
 
-Fuzzy Clock eliminates the mental overhead of constantly converting =14:32= to "about half past two". It shows time the way you already think about it.
-
-More importantly, it changes your relationship with time. When your mode-line says "Afternoon" instead of =14:32=, you stop obsessing over every passing minute.
+Also:
+- Humans don't actually think in precise time
+- "Let's meet around three" is more natural than "Let's meet at 14:32"
+- When your mode-line says "Afternoon" instead of =14:32=, you stop obsessing over every passing minute
+- It might help with focus, or it might just be silly (possibly both)
 
 * Fuzziness Levels
 
-Fuzzy Clock supports 9 levels of fuzziness, from precise to very abstract:
+Fuzzy Clock supports 11 levels of fuzziness, from "reasonably precise" to "is this even a clock anymore?":
 
-| Level | Type            | Example                 |
-|-------+-----------------+-------------------------|
-| 1     | Every 5 minutes | "Quarter past three"    |
-| 2     | Every 15 min    | "Half past three"       |
-| 3     | Half hour       | "Three o'clock"         |
-| 4     | Hour (default)  | "Three o'clock"         |
-| 5     | Part of day     | "Afternoon"             |
-| 6     | Day of week     | "Tuesday"               |
-| 7     | Week number     | "Week 42"               |
-| 8     | Month           | "October"               |
-| 9     | Season          | "Fall"                  |
+| Level | Type            | Example                 | Usefulness      |
+|-------+-----------------+-------------------------+-----------------|
+| 1     | Every 5 minutes | "Quarter past three"    | Actually useful |
+| 2     | Every 15 min    | "Half past three"       | Still useful    |
+| 3     | Half hour       | "Three o'clock"         | Pretty useful   |
+| 4     | Hour (default)  | "Three o'clock"         | The sweet spot  |
+| 5     | Part of day     | "Afternoon"             | Surprisingly ok |
+| 6     | Day of week     | "Tuesday"               | Sure, why not   |
+| 7     | Part of month   | "Early October"         | Getting weird   |
+| 8     | Month           | "October"               | Back to normal  |
+| 9     | Part of season  | "Middle Fall"           | Questionable    |
+| 10    | Part of year    | "Late 2025"             | Very questionable |
+| 11    | Year            | "2025"                  | Absolutely absurd |
 
 Choose your fuzziness level:
 
@@ -110,15 +117,15 @@ Two variables:
 * Documentation
 
 For comprehensive documentation including:
-- The philosophy of fuzzy time
-- Detailed explanation of each fuzziness level
-- When to use each level
-- Advanced configurations
+- How to justify displaying "Middle Fall" as a time
+- Why Level 11 exists (we're not sure either)
+- The surprisingly deep philosophy behind this joke
+- When to use each level (spoiler: levels 7-11 are questionable)
 - Complete API reference
 
 See: [[file:doc/fuzzy-clock.org][doc/fuzzy-clock.org]]
 
-The documentation follows Steve Losh's "teach-don't-tell" philosophy. It will teach you how to *think* about fuzzy time, not just how to configure it.
+The documentation is written in a teach-don't-tell style, but with appropriate self-awareness about displaying "Late 2025" for four months straight.
 
 * Installation
 
@@ -162,6 +169,10 @@ Inspired by the KDE fuzzy clock widget.
 
 This package embodies a simple idea: *software should adapt to humans, not the other way around*.
 
-We evolved to think about time in approximate, contextual terms. Digital clocks force precision we don't need and can't use.
+We evolved to think about time in approximate, contextual terms ("around noon", "this afternoon"). Digital clocks force precision we don't need and can't use.
 
-Fuzzy Clock lets you be human again.
+Fuzzy Clock acknowledges this. Whether displaying "Half past two" or "Middle Fall", it shows time the way humans actually think about it.
+
+Is it useful? Maybe!
+Is it silly? Also maybe!
+Does it help with focus or just confuse everyone? Yes.
