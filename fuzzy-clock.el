@@ -20,9 +20,11 @@
 ;; 4. Hour - "Three o'clock", "Four o'clock"
 ;; 5. Part of day - "Morning", "Afternoon", "Evening", "Night"
 ;; 6. Day of week - "Monday", "Tuesday", "Wednesday"
-;; 7. Week - "Week 1", "Week 43"
+;; 7. Part of month - "Early October", "Middle October", "Late October"
 ;; 8. Month - "January", "October", "December"
-;; 9. Season - "Winter", "Spring", "Summer", "Fall"
+;; 9. Part of season - "Early Fall", "Middle Fall", "Late Fall"
+;; 10. Part of year - "Early 2025", "Middle 2025", "Late 2025"
+;; 11. Year - "2025", "2026"
 ;;
 ;; Usage:
 ;;
@@ -74,7 +76,7 @@
 HOUR is the hour (0-23) and MINUTE is the minute (0-59).
 Optional: DAY (1-31), MONTH (1-12), YEAR, DOW (day-of-week: 0=Sun, 6=Sat), DST, UTCOFF.
 FUZZINESS can be: five-minutes, fifteen-minutes, half-hour, hour, part-of-day,
-day-of-week, week, month, season."
+day-of-week, part-of-month, month, part-of-season, part-of-year, year."
   (cond
    ;; Level 6: Day of week fuzziness
    ((eq fuzziness 'day-of-week)
@@ -87,14 +89,16 @@ day-of-week, week, month, season."
      ((= dow 5) "Friday")
      ((= dow 6) "Saturday")))
 
-   ;; Level 7: Week fuzziness (ISO week number)
-   ((eq fuzziness 'week)
-    ;; Use format-time-string with %V for ISO week number
-    ;; Need to reconstruct a time value from the components
-    ;; encode-time expects: (second minute hour day month year dow dst utcoff)
+   ;; Level 7: Part of month fuzziness
+   ((eq fuzziness 'part-of-month)
+    ;; Days 1-10: Early, 11-20: Middle, 21-end: Late
     (let* ((time-value (encode-time 0 minute hour day month year))
-           (week-num (string-to-number (format-time-string "%V" time-value))))
-      (format "Week %d" week-num)))
+           (month-name (format-time-string "%B" time-value))
+           (part (cond
+                  ((<= day 10) "Early")
+                  ((<= day 20) "Middle")
+                  (t "Late"))))
+      (format "%s %s" part month-name)))
 
    ;; Level 8: Month fuzziness
    ((eq fuzziness 'month)
@@ -102,10 +106,41 @@ day-of-week, week, month, season."
     (let* ((time-value (encode-time 0 minute hour day month year)))
       (format-time-string "%B" time-value)))
 
-   ;; Level 9: Season fuzziness
-   ((eq fuzziness 'season)
-    ;; Use the existing fuzzy-clock-format-season function
-    (fuzzy-clock-format-season month))
+   ;; Level 9: Part of season fuzziness
+   ((eq fuzziness 'part-of-season)
+    ;; First month of season = Early, Second month = Middle, Third month = Late
+    (let* ((season-part (cond
+                         ;; Winter: Dec=Early, Jan=Middle, Feb=Late
+                         ((= month 12) "Early")
+                         ((= month 1) "Middle")
+                         ((= month 2) "Late")
+                         ;; Spring: Mar=Early, Apr=Middle, May=Late
+                         ((= month 3) "Early")
+                         ((= month 4) "Middle")
+                         ((= month 5) "Late")
+                         ;; Summer: Jun=Early, Jul=Middle, Aug=Late
+                         ((= month 6) "Early")
+                         ((= month 7) "Middle")
+                         ((= month 8) "Late")
+                         ;; Fall: Sep=Early, Oct=Middle, Nov=Late
+                         ((= month 9) "Early")
+                         ((= month 10) "Middle")
+                         ((= month 11) "Late")))
+           (season (fuzzy-clock-format-season month)))
+      (format "%s %s" season-part season)))
+
+   ;; Level 10: Part of year fuzziness
+   ((eq fuzziness 'part-of-year)
+    ;; Months 1-4 = Early, 5-8 = Middle, 9-12 = Late
+    (let ((part (cond
+                 ((<= month 4) "Early")
+                 ((<= month 8) "Middle")
+                 (t "Late"))))
+      (format "%s %d" part year)))
+
+   ;; Level 11: Year fuzziness
+   ((eq fuzziness 'year)
+    (format "%d" year))
 
    ;; Original levels below
    ;; Level 1: Five minutes fuzziness
@@ -260,24 +295,28 @@ Fall: September(9), October(10), November(11)"
 (defcustom fuzzy-clock-fuzziness 'hour
   "The level of fuzziness for the clock display.
 Valid values are:
-  'five-minutes   - Every 5 minutes
+  'five-minutes    - Every 5 minutes
   'fifteen-minutes - Every 15 minutes
-  'half-hour      - Half hour
-  'hour           - Hour (default)
-  'part-of-day    - Part of day
-  'day-of-week    - Day of the week
-  'week           - ISO week number
-  'month          - Month name
-  'season         - Season"
+  'half-hour       - Half hour
+  'hour            - Hour (default)
+  'part-of-day     - Part of day
+  'day-of-week     - Day of the week
+  'part-of-month   - Part of month (early/middle/late)
+  'month           - Month name
+  'part-of-season  - Part of season (early/middle/late)
+  'part-of-year    - Part of year (early/middle/late)
+  'year            - Year"
   :type '(choice (const :tag "Every 5 minutes" five-minutes)
                  (const :tag "Every 15 minutes" fifteen-minutes)
                  (const :tag "Half hour" half-hour)
                  (const :tag "Hour" hour)
                  (const :tag "Part of day" part-of-day)
                  (const :tag "Day of week" day-of-week)
-                 (const :tag "Week" week)
+                 (const :tag "Part of month" part-of-month)
                  (const :tag "Month" month)
-                 (const :tag "Season" season))
+                 (const :tag "Part of season" part-of-season)
+                 (const :tag "Part of year" part-of-year)
+                 (const :tag "Year" year))
   :group 'fuzzy-clock)
 
 (defcustom fuzzy-clock-update-interval 60
