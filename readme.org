@@ -1,0 +1,167 @@
+#+TITLE: fuzzy-clock.el
+#+AUTHOR: Fuzzy Clock Contributors
+
+* What is this?
+
+Fuzzy Clock displays time in Emacs the way humans naturally think about it.
+
+Instead of =14:32=, you see "Half past two".
+
+Instead of obsessing over every minute, you see "Afternoon".
+
+* Quick Start
+
+#+begin_src emacs-lisp
+;; Load and enable
+(require 'fuzzy-clock)
+(fuzzy-clock-mode 1)
+#+end_src
+
+Look at your mode-line. You should see something like "Three o'clock" or "Afternoon".
+
+* Why?
+
+Humans don't think in precise time. We think in approximations:
+- "Let's meet around three"
+- "I'll be there in half an hour"
+- "See you this afternoon"
+
+Fuzzy Clock eliminates the mental overhead of constantly converting =14:32= to "about half past two". It shows time the way you already think about it.
+
+More importantly, it changes your relationship with time. When your mode-line says "Afternoon" instead of =14:32=, you stop obsessing over every passing minute.
+
+* Fuzziness Levels
+
+Fuzzy Clock supports 9 levels of fuzziness, from precise to very abstract:
+
+| Level | Type            | Example                 |
+|-------+-----------------+-------------------------|
+| 1     | Every 5 minutes | "Quarter past three"    |
+| 2     | Every 15 min    | "Half past three"       |
+| 3     | Half hour       | "Three o'clock"         |
+| 4     | Hour (default)  | "Three o'clock"         |
+| 5     | Part of day     | "Afternoon"             |
+| 6     | Day of week     | "Tuesday"               |
+| 7     | Week number     | "Week 42"               |
+| 8     | Month           | "October"               |
+| 9     | Season          | "Fall"                  |
+
+Choose your fuzziness level:
+
+#+begin_src emacs-lisp
+;; Maximum precision (still natural language)
+(setq fuzzy-clock-fuzziness 'five-minutes)
+
+;; Default: hour precision
+(setq fuzzy-clock-fuzziness 'hour)
+
+;; Deep focus: eliminate time anxiety
+(setq fuzzy-clock-fuzziness 'part-of-day)
+
+;; Weekly planning
+(setq fuzzy-clock-fuzziness 'day-of-week)
+#+end_src
+
+* Configuration
+
+Basic configuration:
+
+#+begin_src emacs-lisp
+(require 'fuzzy-clock)
+
+;; Set fuzziness level (default: 'hour)
+(setq fuzzy-clock-fuzziness 'hour)
+
+;; Set update interval in seconds (default: 60)
+(setq fuzzy-clock-update-interval 60)
+
+;; Enable mode-line display
+(fuzzy-clock-mode 1)
+#+end_src
+
+Recommended for deep focus:
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'part-of-day)
+(setq fuzzy-clock-update-interval 3600)  ; Update once per hour
+(fuzzy-clock-mode 1)
+#+end_src
+
+* Commands
+
+| Command                      | Description                           |
+|------------------------------+---------------------------------------|
+| =M-x fuzzy-clock-mode=       | Toggle fuzzy clock in mode-line       |
+| =M-x fuzzy-clock-show=       | Show fuzzy time once in minibuffer    |
+| =M-x fuzzy-clock-display-buffer= | Show fuzzy time in dedicated buffer |
+
+* Customization
+
+Use Emacs' built-in customization interface:
+
+#+begin_src emacs-lisp
+M-x customize-group RET fuzzy-clock RET
+#+end_src
+
+Two variables:
+- ~fuzzy-clock-fuzziness~ — Fuzziness level
+- ~fuzzy-clock-update-interval~ — Update frequency in seconds
+
+* Documentation
+
+For comprehensive documentation including:
+- The philosophy of fuzzy time
+- Detailed explanation of each fuzziness level
+- When to use each level
+- Advanced configurations
+- Complete API reference
+
+See: [[file:doc/fuzzy-clock.org][doc/fuzzy-clock.org]]
+
+The documentation follows Steve Losh's "teach-don't-tell" philosophy. It will teach you how to *think* about fuzzy time, not just how to configure it.
+
+* Installation
+
+** Manual Installation
+
+1. Clone this repository or download ~fuzzy-clock.el~
+2. Add to your ~load-path~:
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/path/to/fuzzy-clock.el")
+(require 'fuzzy-clock)
+#+end_src
+
+** Package Manager
+
+Not yet published to MELPA. Manual installation required.
+
+* Requirements
+
+- Emacs 24.4 or later
+- No external dependencies
+
+* Testing
+
+Tests use Buttercup via Eldev:
+
+#+begin_src sh
+# Run all tests
+eldev test
+#+end_src
+
+* License
+
+See LICENSE file.
+
+* Inspiration
+
+Inspired by the KDE fuzzy clock widget.
+
+* Philosophy
+
+This package embodies a simple idea: *software should adapt to humans, not the other way around*.
+
+We evolved to think about time in approximate, contextual terms. Digital clocks force precision we don't need and can't use.
+
+Fuzzy Clock lets you be human again.

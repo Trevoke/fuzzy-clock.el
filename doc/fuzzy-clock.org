@@ -1,0 +1,868 @@
+#+TITLE: Fuzzy Clock Technical Documentation
+#+AUTHOR: Fuzzy Clock Contributors
+#+DATE: 2025
+
+* Introduction
+
+** What is fuzzy-clock.el?
+
+Fuzzy Clock is an Emacs package that displays time the way humans naturally think about it.
+
+Instead of seeing =14:32=, you see "Half past two".
+Instead of =09:47=, you see "Quarter to ten".
+
+** Why does this matter?
+
+Think about how you actually use time when talking to other people:
+
+- "Let's meet around three" — not "Let's meet at 15:00:00"
+- "I'll be there in half an hour" — not "I'll be there at 14:30 precisely"
+- "See you this afternoon" — not "See you between 12:00 and 18:00"
+
+Humans think in approximations. We naturally round time to convenient chunks.
+
+** The problem with precise time
+
+When you glance at your mode-line and see =14:32=, your brain does extra work:
+1. Parse the numbers
+2. Convert to 12-hour time (2:32 PM)
+3. Round it to something useful ("about half past two")
+
+This happens dozens of times a day. It's cognitive overhead you don't need.
+
+** The fuzzy-clock solution
+
+Fuzzy Clock does that mental rounding for you. It shows time the way you already think about it.
+
+More importantly, *it helps you relate to time differently*. When your mode-line says "Afternoon" instead of "14:32", you're less likely to obsess over every passing minute. It's a gentler, more humane relationship with time.
+
+** Should you keep reading?
+
+If you:
+- Find yourself constantly checking the clock
+- Want to reduce time anxiety
+- Prefer natural language over numbers
+- Like KDE's fuzzy clock widget
+- Want Emacs to feel more human
+
+Then yes, keep reading.
+
+* Getting Started
+
+Let's get you to a working fuzzy clock as quickly as possible.
+
+** Step 1: Load the package
+
+#+begin_src emacs-lisp
+;; Assuming you've installed fuzzy-clock.el, load it:
+(require 'fuzzy-clock)
+#+end_src
+
+** Step 2: Enable it
+
+#+begin_src emacs-lisp
+;; Turn on fuzzy clock mode
+(fuzzy-clock-mode 1)
+#+end_src
+
+** What you should see
+
+Look at your mode-line (the bar at the bottom of your Emacs window). You should see something like:
+
+: Three o'clock
+
+Or:
+
+: Afternoon
+
+Or:
+
+: Half past two
+
+The exact text depends on what time it is right now.
+
+** Did it work?
+
+If you see natural language time in your mode-line: *Congratulations!* You have a working fuzzy clock.
+
+If you don't see anything, check that ~global-mode-string~ is displayed in your mode-line configuration. Most Emacs configurations include it by default.
+
+** Quick experiment
+
+Try changing the time on your system clock (or just wait a few minutes). Watch your mode-line update automatically. The default updates every 60 seconds.
+
+** Turn it off
+
+Don't like it? Turn it off just as easily:
+
+#+begin_src emacs-lisp
+(fuzzy-clock-mode 0)
+#+end_src
+
+** What's next?
+
+You now have fuzzy time in your mode-line. But "Three o'clock" might still be more precise than you want. Or maybe it's *not* precise enough.
+
+This is where fuzziness levels come in. Let's learn about them.
+
+* Understanding Fuzzy Time
+
+This section will teach you how to *think* about fuzzy time, not just how to configure it.
+
+** The Core Concept: Fuzziness Levels
+
+The key insight of fuzzy-clock is this: *time has different resolutions depending on context*.
+
+Consider these conversations:
+
+- "What time is it?" — "Quarter past three"
+- "When do you wake up?" — "Morning"
+- "When's the deadline?" — "Next week"
+- "When were you born?" — "Winter 1985"
+
+Each answer uses a different resolution of time. They're all correct. They're all useful. The resolution depends on what matters.
+
+Fuzzy Clock gives you 9 different resolutions. Let's understand them from the inside out.
+
+** Level 4: Hour (The Default)
+
+Let's start with the default level, because it's the easiest to understand.
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'hour)
+#+end_src
+
+At this level, time is rounded to the nearest hour:
+- 14:00 to 14:29 → "Two o'clock"
+- 14:30 to 15:29 → "Three o'clock"
+
+Notice the rounding happens at the 30-minute mark. This matches how humans naturally round: "It's about three" when it's 14:32.
+
+Special cases:
+- Midnight (00:00-00:29) → "Midnight" (not "Zero o'clock")
+- Noon (12:00-12:29) → "Noon" (not "Twelve o'clock")
+
+*Why this is the default:* It strikes a balance. You still have a sense of progression through the day, but you're not watching minutes tick by.
+
+** Level 1: Five Minutes (Maximum Precision)
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'five-minutes)
+#+end_src
+
+This is the most precise level. Time is rounded to 5-minute intervals:
+- 14:03 → "Five past two"
+- 14:17 → "Fifteen past two"
+- 14:42 → "Twenty to three"
+
+The magic is in the language. Instead of "14:15", you see "Quarter past two". It's still precise, but it's *linguistic* precision, not numeric precision.
+
+This level uses natural expressions:
+- 0 minutes → "Three o'clock"
+- 5 minutes past → "Five past three"
+- 15 minutes past → "Quarter past three"
+- 30 minutes past → "Half past three"
+- 15 minutes before → "Quarter to four"
+- 5 minutes before → "Five to four"
+
+*When to use this:* When you need precision but prefer natural language. Good for people who like the KDE fuzzy clock at its most precise setting.
+
+** Level 2: Fifteen Minutes
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'fifteen-minutes)
+#+end_src
+
+Time rounds to 15-minute intervals:
+- 14:00-14:06 → "Two o'clock"
+- 14:07-14:22 → "Quarter past two"
+- 14:23-14:37 → "Half past two"
+- 14:38-14:52 → "Quarter to three"
+- 14:53-15:06 → "Three o'clock"
+
+This is useful when you want to track time in quarter-hour blocks. Many people schedule their days this way naturally.
+
+** Level 3: Half Hour
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'half-hour)
+#+end_src
+
+Time rounds to 30-minute intervals:
+- 14:00-14:14 → "Two o'clock"
+- 14:15-14:44 → "Half past two"
+- 14:45-15:14 → "Three o'clock"
+
+Only three possible states per hour: on the hour, half past, or the next hour.
+
+*When to use this:* When you want to think in half-hour blocks but still have a sense of time progression.
+
+** Level 5: Part of Day (The First Big Jump)
+
+Now we make a conceptual leap. Instead of dividing hours, we divide the *day itself*.
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'part-of-day)
+#+end_src
+
+Your mode-line will show one of four states:
+- 06:00-11:59 → "Morning"
+- 12:00-17:59 → "Afternoon"
+- 18:00-21:59 → "Evening"
+- 22:00-05:59 → "Night"
+
+This changes how you relate to time. You stop thinking in hours and start thinking in *periods*.
+
+"Morning" doesn't tell you if it's 6 AM or 11 AM. That's the point. It tells you the *character* of the time, not its precise position.
+
+*When to use this:* When you want to stop micromanaging your time. When you want to think in terms of energy levels (morning energy, afternoon slump, evening wind-down) rather than clock positions.
+
+** Level 6: Day of Week
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'day-of-week)
+#+end_src
+
+Your mode-line shows: "Monday", "Tuesday", etc.
+
+Now we've zoomed out even further. Hours don't matter. The specific day matters.
+
+This is useful when you're thinking about your week as a whole. "It's Tuesday" is more meaningful than "It's 14:32 on Tuesday" when you're planning weekly tasks.
+
+** Level 7: Week Number
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'week)
+#+end_src
+
+Your mode-line shows: "Week 42", "Week 1", etc. (ISO week numbers)
+
+At this level, you're thinking in terms of *project timelines*. Individual days blur together. What matters is which week of the year you're in.
+
+*When to use this:* When you're planning long-term projects. When you think in sprints or weekly cycles.
+
+** Level 8: Month
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'month)
+#+end_src
+
+Your mode-line shows: "January", "October", etc.
+
+Useful for thinking about the year as a whole. "It's October" tells you where you are in the annual cycle.
+
+** Level 9: Season (Maximum Fuzziness)
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'season)
+#+end_src
+
+Your mode-line shows: "Winter", "Spring", "Summer", or "Fall"
+
+This is the most abstract level. Time has been reduced to its most basic cycle: the seasons.
+
+Seasons are defined as:
+- Winter: December, January, February
+- Spring: March, April, May
+- Summer: June, July, August
+- Fall: September, October, November
+
+*When to use this:* Probably never in your mode-line. But it's useful conceptually. It reminds you that time is cyclical, not linear. We're always in one of four states, rotating forever.
+
+** The Pattern: Zooming Out
+
+Notice the pattern in these levels:
+
+1. Five minutes — Subdividing hours
+2. Fifteen minutes — Subdividing hours
+3. Half hour — Subdividing hours
+4. Hour — The natural unit
+5. Part of day — Subdividing days
+6. Day of week — The natural unit
+7. Week — Subdividing months/years
+8. Month — Subdividing years
+9. Season — Subdividing years
+
+Levels 1-4 are about *precision within a day*.
+Levels 5-9 are about *position within larger cycles*.
+
+** Choosing Your Fuzziness Level
+
+Here's how to think about it:
+
+*Ask yourself:* What's the smallest unit of time that matters for how I want to feel right now?
+
+- Need to catch a meeting in 15 minutes? → Use ~five-minutes~ or ~fifteen-minutes~
+- Want to reduce time anxiety? → Use ~hour~ or ~part-of-day~
+- Planning your week? → Use ~day-of-week~ or ~week~
+- Just want to stay grounded in the current season? → Use ~season~
+
+You can change this *anytime*. Time is contextual. Your fuzziness should be too.
+
+** The Philosophy of Rounding
+
+Every fuzzy clock implementation has to make decisions about rounding. Let's understand the philosophy here.
+
+*** Hour-level rounding
+
+At ~hour~ fuzziness, 14:32 becomes "Three o'clock" because 32 minutes is closer to the *next* hour (15:00) than the current hour (14:00).
+
+The rounding point is 30 minutes. This matches human intuition: "It's about three" when it's 14:32.
+
+*** Special handling for midnight and noon
+
+Midnight and noon are *special moments*. They have names. We say "Midnight" and "Noon", not "Zero o'clock" and "Twelve o'clock".
+
+Fuzzy Clock respects this. At levels 1-4, midnight and noon appear as words, not numbers.
+
+*** The "past" and "to" logic
+
+In English, we say:
+- "Quarter past three" (3:15)
+- "Quarter to four" (3:45)
+
+We use "past" for the first half of the hour, "to" for the second half.
+
+The switch happens at 30 minutes (half past). This is language-specific, and fuzzy-clock implements the English convention.
+
+*** Why these specific boundaries?
+
+For five-minute fuzziness:
+- 14:03 → "Five past two"
+- 14:07 → "Five past two"
+
+The boundaries are ±2 minutes. Why?
+
+Because that's how humans round. If someone asks "What time is it?" at 14:07, you'd say "About five past two", not "Seven past two".
+
+The rounding boundaries match *natural linguistic rounding*.
+
+** Understanding Update Intervals
+
+By default, fuzzy-clock updates every 60 seconds:
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-update-interval 60)
+#+end_src
+
+*Why does this matter?*
+
+If your fuzziness is set to ~hour~, your mode-line will show "Three o'clock" for a full hour. The 60-second update means the display will change within a minute of when it should.
+
+But if your fuzziness is ~season~, updating every 60 seconds is overkill. Seasons last three months. You could update once a day:
+
+#+begin_src emacs-lisp
+(setq fuzzy-clock-fuzziness 'season)
+(setq fuzzy-clock-update-interval 86400)  ; 24 hours
+#+end_src
+
+*Match your update interval to your fuzziness level.*
+
+Recommended intervals:
+- ~five-minutes~ → 60 seconds (1 minute)
+- ~fifteen-minutes~ → 300 seconds (5 minutes)
+- ~half-hour~ → 600 seconds (10 minutes)
+- ~hour~ → 600 seconds (10 minutes)
+- ~part-of-day~ → 3600 seconds (1 hour)
+- ~day-of-week~ → 3600 seconds (1 hour)
+- ~week~ → 86400 seconds (24 hours)
+- ~month~ → 86400 seconds (24 hours)
+- ~season~ → 86400 seconds (24 hours)
+
+Less frequent updates = less CPU usage = more battery life.
+
+** Beyond the Mode-line: Other Display Methods
+
+The mode-line integration is the main use case, but fuzzy-clock offers two other ways to view fuzzy time.
+
+*** One-time display in minibuffer
+
+#+begin_src emacs-lisp
+M-x fuzzy-clock-show
+#+end_src
+
+This shows the current fuzzy time once in the minibuffer, then disappears.
+
+Useful when you have ~fuzzy-clock-mode~ disabled but occasionally want to check fuzzy time.
+
+You could bind it to a key:
+
+#+begin_src emacs-lisp
+(global-set-key (kbd "C-c t") 'fuzzy-clock-show)
+#+end_src
+
+Now ~C-c t~ shows you fuzzy time on demand.
+
+*** Dedicated buffer display
+
+#+begin_src emacs-lisp
+M-x fuzzy-clock-display-buffer
+#+end_src
+
+This creates a buffer called ~*Fuzzy Clock*~ showing the current fuzzy time.
+
+The buffer doesn't auto-update. It's a snapshot of fuzzy time at the moment you called the command.
+
+*Why would you use this?*
+
+Honestly? Probably never. It's there for completeness. The mode-line integration is what you actually want.
+
+But if you're building a custom dashboard or information display, you could incorporate this buffer.
+
+** Practical Configurations
+
+Let's put this all together with some real-world configurations.
+
+*** Configuration 1: The Default Experience
+
+#+begin_src emacs-lisp
+(require 'fuzzy-clock)
+(setq fuzzy-clock-fuzziness 'hour)
+(setq fuzzy-clock-update-interval 60)
+(fuzzy-clock-mode 1)
+#+end_src
+
+This is the recommended starting point. Hour-level fuzziness, updates every minute.
+
+*** Configuration 2: Maximum Precision
+
+#+begin_src emacs-lisp
+(require 'fuzzy-clock)
+(setq fuzzy-clock-fuzziness 'five-minutes)
+(setq fuzzy-clock-update-interval 60)
+(fuzzy-clock-mode 1)
+#+end_src
+
+You want natural language but you need precision. "Quarter past three" instead of "15:15".
+
+*** Configuration 3: Deep Focus Mode
+
+#+begin_src emacs-lisp
+(require 'fuzzy-clock)
+(setq fuzzy-clock-fuzziness 'part-of-day)
+(setq fuzzy-clock-update-interval 3600)  ; Update once per hour
+(fuzzy-clock-mode 1)
+#+end_src
+
+You want to eliminate time anxiety. "Afternoon" is all you need to know. Updates once per hour to save CPU.
+
+*** Configuration 4: Weekly Planning Mode
+
+#+begin_src emacs-lisp
+(require 'fuzzy-clock)
+(setq fuzzy-clock-fuzziness 'day-of-week)
+(setq fuzzy-clock-update-interval 3600)
+(fuzzy-clock-mode 1)
+#+end_src
+
+You're thinking in weekly cycles. "Tuesday" is more useful than "14:32 on Tuesday".
+
+*** Configuration 5: Context-Aware Switching
+
+#+begin_src emacs-lisp
+(require 'fuzzy-clock)
+
+;; Default: hour fuzziness
+(setq fuzzy-clock-fuzziness 'hour)
+(fuzzy-clock-mode 1)
+
+;; Define quick-switch functions
+(defun my-fuzzy-clock-focus-mode ()
+  "Switch to part-of-day fuzziness for deep focus."
+  (interactive)
+  (setq fuzzy-clock-fuzziness 'part-of-day)
+  (setq fuzzy-clock-update-interval 3600)
+  (message "Fuzzy clock: Focus mode (part-of-day)"))
+
+(defun my-fuzzy-clock-precise-mode ()
+  "Switch to five-minute fuzziness for meetings."
+  (interactive)
+  (setq fuzzy-clock-fuzziness 'five-minutes)
+  (setq fuzzy-clock-update-interval 60)
+  (message "Fuzzy clock: Precise mode (five-minutes)"))
+
+(defun my-fuzzy-clock-default-mode ()
+  "Reset to default hour fuzziness."
+  (interactive)
+  (setq fuzzy-clock-fuzziness 'hour)
+  (setq fuzzy-clock-update-interval 60)
+  (message "Fuzzy clock: Default mode (hour)"))
+
+;; Bind to keys
+(global-set-key (kbd "C-c t f") 'my-fuzzy-clock-focus-mode)
+(global-set-key (kbd "C-c t p") 'my-fuzzy-clock-precise-mode)
+(global-set-key (kbd "C-c t d") 'my-fuzzy-clock-default-mode)
+#+end_src
+
+Now you can switch fuzziness levels based on context:
+- ~C-c t f~ → Focus mode (part-of-day)
+- ~C-c t p~ → Precise mode (five-minutes)
+- ~C-c t d~ → Default mode (hour)
+
+** Advanced Topic: Time as a Human Experience
+
+We've covered the mechanics. Now let's talk about *why* this matters philosophically.
+
+Modern digital time (14:32:47) is a recent invention. For most of human history, people used:
+- Sundials (position of the sun)
+- Church bells (hours)
+- Natural language ("around noon", "evening")
+
+We evolved to think about time in *approximate, contextual* terms.
+
+Digital clocks are *precise* but not *human*. They show an accuracy we don't need and can't use. When you see "14:32", you immediately translate it to "about half past two". Your brain does this automatically.
+
+Fuzzy Clock eliminates that translation step. It shows you time in the format your brain *actually* uses.
+
+More importantly, it changes your *relationship* with time:
+
+- Precise time encourages constant checking, anxiety, urgency
+- Fuzzy time encourages flow states, presence, calm
+
+When your mode-line says "Afternoon" for six hours straight, you stop obsessing over every minute. You start thinking in *periods* and *rhythms* instead of *deadlines* and *urgency*.
+
+This is especially valuable for people who:
+- Work in deep focus modes
+- Struggle with time anxiety
+- Want to be less "clock-driven"
+- Practice mindfulness or meditation
+- Work on creative tasks
+
+You can still have a clock. You can still make meetings. But you're not *enslaved* to the minute-by-minute tick.
+
+** What You've Learned
+
+You now understand:
+
+1. *Why* fuzzy time exists (human-centered time display)
+2. *How* fuzziness levels work (9 levels from precise to abstract)
+3. *When* to use each level (context-dependent)
+4. *How* to configure it for your needs
+5. *Why* it matters philosophically
+
+You're no longer just a user of fuzzy-clock. You understand its *principles*. You can make informed decisions about fuzziness levels. You can explain to others why you use it.
+
+* Reference
+
+This section is for quick lookup when you know what you're looking for.
+
+** Installation
+
+*** Via package manager
+
+Not yet published to MELPA. Manual installation required.
+
+*** Manual installation
+
+1. Clone the repository or download ~fuzzy-clock.el~
+2. Add to your ~load-path~:
+
+#+begin_src emacs-lisp
+(add-to-list 'load-path "/path/to/fuzzy-clock.el")
+(require 'fuzzy-clock)
+#+end_src
+
+** Commands
+
+| Command                        | Description                                    |
+|--------------------------------+------------------------------------------------|
+| ~fuzzy-clock-mode~             | Toggle global fuzzy clock mode (mode-line)     |
+| ~fuzzy-clock-show~             | Display fuzzy time once in minibuffer          |
+| ~fuzzy-clock-display-buffer~   | Display fuzzy time in dedicated buffer         |
+
+** Customization Variables
+
+| Variable                       | Type    | Default | Description                           |
+|--------------------------------+---------+---------+---------------------------------------|
+| ~fuzzy-clock-fuzziness~        | symbol  | ~'hour~ | Fuzziness level (see below)           |
+| ~fuzzy-clock-update-interval~  | integer | ~60~    | Seconds between updates               |
+
+** Fuzziness Levels
+
+| Symbol             | Description                    | Example Output            |
+|--------------------+--------------------------------+---------------------------|
+| ~'five-minutes~    | Rounds to 5-minute intervals   | "Quarter past three"      |
+| ~'fifteen-minutes~ | Rounds to 15-minute intervals  | "Half past three"         |
+| ~'half-hour~       | Rounds to 30-minute intervals  | "Three o'clock"           |
+| ~'hour~            | Rounds to hour                 | "Three o'clock"           |
+| ~'part-of-day~     | Morning/Afternoon/Evening/Night| "Afternoon"               |
+| ~'day-of-week~     | Monday through Sunday          | "Tuesday"                 |
+| ~'week~            | ISO week number                | "Week 42"                 |
+| ~'month~           | Month name                     | "October"                 |
+| ~'season~          | Season name                    | "Fall"                    |
+
+** Functions
+
+*** User-Facing Functions
+
+**** ~(fuzzy-clock-mode &optional ARG)~
+
+Global minor mode to display fuzzy time in mode-line.
+
+With prefix ARG, enable if positive, disable if zero or negative.
+
+When enabled:
+- Adds fuzzy time to ~global-mode-string~
+- Starts update timer
+- Updates every ~fuzzy-clock-update-interval~ seconds
+
+When disabled:
+- Removes from ~global-mode-string~
+- Cancels timer
+
+**** ~(fuzzy-clock-show)~
+
+Display current fuzzy time in minibuffer.
+
+Interactive command. One-time display, does not update.
+
+**** ~(fuzzy-clock-display-buffer)~
+
+Display current fuzzy time in dedicated buffer.
+
+Creates or switches to ~*Fuzzy Clock*~ buffer.
+Snapshot at time of call, does not auto-update.
+
+*** Internal Functions
+
+**** ~(fuzzy-clock-format-time FUZZINESS HOUR MINUTE &optional DAY MONTH YEAR DOW DST UTCOFF)~
+
+Format time as fuzzy string based on FUZZINESS level.
+
+Required arguments:
+- ~FUZZINESS~: Symbol indicating fuzziness level
+- ~HOUR~: Hour (0-23)
+- ~MINUTE~: Minute (0-59)
+
+Optional arguments (required for some fuzziness levels):
+- ~DAY~: Day of month (1-31)
+- ~MONTH~: Month (1-12)
+- ~YEAR~: Year (e.g., 2025)
+- ~DOW~: Day of week (0=Sunday, 6=Saturday)
+- ~DST~: Daylight saving time flag
+- ~UTCOFF~: UTC offset
+
+Returns: String representation of fuzzy time.
+
+**** ~(fuzzy-clock-format-season MONTH)~
+
+Format season based on MONTH (1-12).
+
+Returns: "Winter", "Spring", "Summer", or "Fall"
+
+**** ~(fuzzy-clock--hour-to-word HOUR)~
+
+Convert HOUR (0-23) to word form in 12-hour format.
+
+Examples:
+- 0 or 12 → "Twelve"
+- 3 or 15 → "Three"
+- 23 → "Eleven"
+
+Returns: Capitalized hour word
+
+**** ~(fuzzy-clock-update)~
+
+Internal function. Updates ~fuzzy-clock-string~ with current time.
+
+Called automatically by timer. Do not call directly.
+
+** Variables
+
+*** ~fuzzy-clock-string~
+
+String displayed in mode-line showing fuzzy time.
+
+This variable is marked as ~risky-local-variable~ to allow evaluation in mode-line.
+Do not modify directly. Updated by ~fuzzy-clock-update~.
+
+*** ~fuzzy-clock-timer~
+
+Timer object for updating fuzzy clock.
+
+Do not modify directly. Managed by ~fuzzy-clock-mode~.
+
+** Rounding Behavior Reference
+
+*** Five-Minute Fuzziness
+
+| Minute Range | Rounded To | Display Example           |
+|--------------+------------+---------------------------|
+| 0-2          | 0          | "Three o'clock"           |
+| 3-7          | 5          | "Five past three"         |
+| 8-12         | 10         | "Ten past three"          |
+| 13-17        | 15         | "Quarter past three"      |
+| 18-22        | 20         | "Twenty past three"       |
+| 23-27        | 25         | "Twenty five past three"  |
+| 28-32        | 30         | "Half past three"         |
+| 33-37        | 35         | "Twenty five to four"     |
+| 38-42        | 40         | "Twenty to four"          |
+| 43-47        | 45         | "Quarter to four"         |
+| 48-52        | 50         | "Ten to four"             |
+| 53-57        | 55         | "Five to four"            |
+| 58-59        | 60 (→next) | "Four o'clock"            |
+
+*** Fifteen-Minute Fuzziness
+
+| Minute Range | Rounded To | Display Example      |
+|--------------+------------+----------------------|
+| 0-6          | 0          | "Three o'clock"      |
+| 7-22         | 15         | "Quarter past three" |
+| 23-37        | 30         | "Half past three"    |
+| 38-52        | 45         | "Quarter to four"    |
+| 53-59        | 60 (→next) | "Four o'clock"       |
+
+*** Half-Hour Fuzziness
+
+| Minute Range | Rounded To | Display Example  |
+|--------------+------------+------------------|
+| 0-14         | 0          | "Three o'clock"  |
+| 15-44        | 30         | "Half past three"|
+| 45-59        | 60 (→next) | "Four o'clock"   |
+
+*** Hour Fuzziness
+
+| Minute Range | Rounded To | Display Example |
+|--------------+------------+-----------------|
+| 0-29         | 0          | "Three o'clock" |
+| 30-59        | 60 (→next) | "Four o'clock"  |
+
+*** Part-of-Day Fuzziness
+
+| Hour Range | Display     |
+|------------|-------------|
+| 6-11       | "Morning"   |
+| 12-17      | "Afternoon" |
+| 18-21      | "Evening"   |
+| 22-5       | "Night"     |
+
+*** Season Mapping
+
+| Months              | Season   |
+|---------------------|----------|
+| December-February   | "Winter" |
+| March-May           | "Spring" |
+| June-August         | "Summer" |
+| September-November  | "Fall"   |
+
+** Requirements
+
+- Emacs 24.4 or later
+- No external dependencies
+
+** Known Limitations
+
+1. Language support: Currently English only
+2. Season definitions: Northern Hemisphere (December-February = Winter)
+3. 12-hour format only: No 24-hour word format
+4. Mode-line integration only: No header-line or tab-bar support
+
+** Troubleshooting
+
+*** Fuzzy time doesn't appear in mode-line
+
+Check that ~global-mode-string~ is included in your mode-line format:
+
+#+begin_src emacs-lisp
+;; Evaluate this to check:
+global-mode-string
+
+;; Should include: (:eval fuzzy-clock-string)
+#+end_src
+
+If it's missing, your mode-line configuration might be overriding the default.
+
+*** Mode-line shows "*invalid*"
+
+This happens if ~fuzzy-clock-string~ isn't marked as a risky variable.
+
+Fuzzy-clock sets this automatically, but some configurations might block it.
+
+Check:
+
+#+begin_src emacs-lisp
+(get 'fuzzy-clock-string 'risky-local-variable)
+;; Should return: t
+#+end_src
+
+If it returns ~nil~, manually set it:
+
+#+begin_src emacs-lisp
+(put 'fuzzy-clock-string 'risky-local-variable t)
+#+end_src
+
+*** Fuzzy time doesn't update
+
+Check that the timer is running:
+
+#+begin_src emacs-lisp
+fuzzy-clock-timer
+;; Should return a timer object like: [t 0 60 60 fuzzy-clock-update nil nil]
+#+end_src
+
+If it's ~nil~, the timer isn't running. Try:
+
+#+begin_src emacs-lisp
+(fuzzy-clock-mode 0)
+(fuzzy-clock-mode 1)
+#+end_src
+
+*** Wrong season displayed (Southern Hemisphere)
+
+The season definitions are Northern Hemisphere by default.
+
+Current workaround: The season feature isn't customizable yet.
+
+Future enhancement: Add customization for hemisphere.
+
+** Development
+
+*** Running Tests
+
+Tests use Buttercup framework via Eldev:
+
+#+begin_src sh
+# Install Eldev (if not already installed)
+curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
+
+# Run tests
+eldev test
+#+end_src
+
+*** Test Coverage
+
+The test suite includes:
+- Rounding behavior tests for all fuzziness levels
+- Mode-line integration tests
+- Special case tests (midnight, noon)
+- Edge case tests (hour wraparound)
+- Display method tests
+
+70+ acceptance tests ensure correctness.
+
+** Version History
+
+*** 0.1.0 (2025)
+
+- Initial release
+- 9 fuzziness levels
+- Mode-line integration
+- Minibuffer display
+- Dedicated buffer display
+- Comprehensive test suite
+
+** License
+
+See LICENSE file in repository.
+
+** Contributing
+
+Contributions welcome. See CONTRIBUTING file or repository issues.
+
+** Credits
+
+Inspired by the KDE fuzzy clock widget.
+
+** Contact
+
+See repository for issue tracker and maintainer contact.
