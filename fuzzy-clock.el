@@ -1,12 +1,13 @@
 ;;; fuzzy-clock.el --- Display time in a human-friendly, approximate way -*- lexical-binding: t; -*-
+;; SPDX-License-Identifier: GPL-3.0-or-later
 
 ;; Copyright (C) 2025
 
 ;; Author: Fuzzy Clock Contributors
 ;; Version: 0.1.0
-;; Package-Requires: ((emacs "24.4"))
+;; Package-Requires: ((emacs "26.1"))
 ;; Keywords: calendar, time
-;; URL: https://github.com/example/fuzzy-clock
+;; URL: https://github.com/trevoke/fuzzy-clock.el
 
 ;;; Commentary:
 
@@ -54,7 +55,7 @@
   :prefix "fuzzy-clock-")
 
 (defun fuzzy-clock--hour-to-word (hour)
-  "Convert HOUR (0-23) to word form (e.g., 3 -> 'Three')."
+  "Convert HOUR (0-23) to word form (e.g., 3 -> `Three')."
   (let ((hour-12 (if (zerop hour) 12
                    (if (<= hour 12) hour (- hour 12)))))
     (cond
@@ -71,12 +72,14 @@
      ((= hour-12 11) "Eleven")
      ((= hour-12 12) "Twelve"))))
 
-(defun fuzzy-clock-format-time (fuzziness hour minute &optional day month year dow dst utcoff)
+(defun fuzzy-clock-format-time (fuzziness hour minute &optional day month year dow _dst _utcoff)
   "Format time as fuzzy string based on FUZZINESS level.
 HOUR is the hour (0-23) and MINUTE is the minute (0-59).
-Optional: DAY (1-31), MONTH (1-12), YEAR, DOW (day-of-week: 0=Sun, 6=Sat), DST, UTCOFF.
-FUZZINESS can be: five-minutes, fifteen-minutes, half-hour, hour, part-of-day,
-day-of-week, part-of-month, month, part-of-season, part-of-year, year."
+Optional: DAY (1-31), MONTH (1-12), YEAR, DOW (day-of-week: 0=Sun,
+6=Sat), DST, UTCOFF.
+FUZZINESS can be: five-minutes, fifteen-minutes, half-hour, hour,
+part-of-day, day-of-week, part-of-month, month, part-of-season,
+part-of-year, year."
   (cond
    ;; Level 6: Day of week fuzziness
    ((eq fuzziness 'day-of-week)
@@ -295,17 +298,17 @@ Fall: September(9), October(10), November(11)"
 (defcustom fuzzy-clock-fuzziness 'hour
   "The level of fuzziness for the clock display.
 Valid values are:
-  'five-minutes    - Every 5 minutes
-  'fifteen-minutes - Every 15 minutes
-  'half-hour       - Half hour
-  'hour            - Hour (default)
-  'part-of-day     - Part of day
-  'day-of-week     - Day of the week
-  'part-of-month   - Part of month (early/middle/late)
-  'month           - Month name
-  'part-of-season  - Part of season (early/middle/late)
-  'part-of-year    - Part of year (early/middle/late)
-  'year            - Year"
+  `five-minutes'    - Every 5 minutes
+  `fifteen-minutes' - Every 15 minutes
+  `half-hour'       - Half hour
+  `hour'            - Hour (default)
+  `part-of-day'     - Part of day
+  `day-of-week'     - Day of the week
+  `part-of-month'   - Part of month (early/middle/late)
+  `month'           - Month name
+  `part-of-season'  - Part of season (early/middle/late)
+  `part-of-year'    - Part of year (early/middle/late)
+  `year'            - Year"
   :type '(choice (const :tag "Every 5 minutes" five-minutes)
                  (const :tag "Every 15 minutes" fifteen-minutes)
                  (const :tag "Half hour" half-hour)
@@ -338,7 +341,7 @@ Default is 60 seconds (1 minute)."
 (defun fuzzy-clock-update ()
   "Update the fuzzy clock string with the current time."
   (let* ((time (decode-time))
-         (second (nth 0 time))
+         (_second (nth 0 time))
          (minute (nth 1 time))
          (hour (nth 2 time))
          (day (nth 3 time))
@@ -350,6 +353,7 @@ Default is 60 seconds (1 minute)."
     (setq fuzzy-clock-string
           (concat " " (fuzzy-clock-format-time fuzzy-clock-fuzziness hour minute day month year dow dst utcoff)))))
 
+;;;###autoload
 (define-minor-mode fuzzy-clock-mode
   "Toggle fuzzy clock display in the mode-line.
 When enabled, displays the current time in a human-friendly,
@@ -381,7 +385,7 @@ approximate format in the mode-line."
       (let ((inhibit-read-only t))
         (erase-buffer)
         (let* ((time (decode-time))
-               (second (nth 0 time))
+               (_second (nth 0 time))
                (minute (nth 1 time))
                (hour (nth 2 time))
                (day (nth 3 time))
@@ -400,7 +404,7 @@ approximate format in the mode-line."
   "Display the current fuzzy time in the minibuffer."
   (interactive)
   (let* ((time (decode-time))
-         (second (nth 0 time))
+         (_second (nth 0 time))
          (minute (nth 1 time))
          (hour (nth 2 time))
          (day (nth 3 time))
