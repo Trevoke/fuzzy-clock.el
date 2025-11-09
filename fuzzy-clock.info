@@ -1,0 +1,1692 @@
+This is fuzzy-clock.info, produced by makeinfo version 7.2 from
+fuzzy-clock.texi.
+
+INFO-DIR-SECTION Misc
+START-INFO-DIR-ENTRY
+* (fuzzy-clock).        Fuzzy Clock Technical Documentation.
+END-INFO-DIR-ENTRY
+
+
+File: fuzzy-clock.info,  Node: Top,  Next: Introduction,  Up: (dir)
+
+Fuzzy Clock Technical Documentation
+***********************************
+
+* Menu:
+
+* Introduction::
+* Getting Started::
+* Understanding Fuzzy Time::
+* Reference::
+
+-- The Detailed Node Listing --
+
+Introduction
+
+* What is fuzzy-clock.el?: What is fuzzy-clockel?.
+* Why does this exist?::
+* Is this useful?::
+* Should you keep reading?::
+
+Getting Started
+
+* Step 1 Load the package::
+* Step 2 Enable it::
+* What you should see::
+* Did it work?::
+* Quick experiment::
+* Turn it off::
+* What's next?::
+
+Understanding Fuzzy Time
+
+* The Core Concept Fuzziness Levels::
+* Level 4 Hour (The Default)::
+* Level 1 Five Minutes (Maximum Precision)::
+* Level 2 Fifteen Minutes::
+* Level 3 Half Hour::
+* Level 5 Part of Day (The First Big Jump)::
+* Level 6 Day of Week::
+* Level 7 Part of Month (Where It Gets Weird)::
+* Level 8 Month::
+* Level 9 Part of Season (Committing to the Bit)::
+* Level 10 Part of Year (Why Not?)::
+* Level 11 Year (The Final Boss)::
+* The Pattern Or, "How We Justified This": The Pattern Or "How We Justified This".
+* Choosing Your Fuzziness Level::
+* The Philosophy of Rounding::
+* Understanding Update Intervals::
+* Beyond the Mode-line Other Display Methods::
+* Practical Configurations::
+* Advanced Topic Wait, Is This Actually Deep?: Advanced Topic Wait Is This Actually Deep?.
+* What You've Learned::
+
+The Philosophy of Rounding
+
+* Hour-level rounding::
+* Special handling for midnight and noon::
+* The "past" and "to" logic::
+* Why these specific boundaries?::
+
+Beyond the Mode-line: Other Display Methods
+
+* One-time display in minibuffer::
+* Dedicated buffer display::
+
+Practical Configurations
+
+* Configuration 1 The Default Experience::
+* Configuration 2 Maximum Precision::
+* Configuration 3 Deep Focus Mode::
+* Configuration 4 Weekly Planning Mode::
+* Configuration 5 Context-Aware Switching::
+
+Reference
+
+* Installation::
+* Commands::
+* Customization Variables::
+* Fuzziness Levels::
+* Functions::
+* Variables::
+* Rounding Behavior Reference::
+* Requirements::
+* Known Limitations::
+* Troubleshooting::
+* Development::
+* Version History::
+* License::
+* Contributing::
+* Credits::
+* Contact::
+
+Installation
+
+* Via package manager::
+* Manual installation::
+
+Functions
+
+* User-Facing Functions::
+* Internal Functions::
+
+Variables
+
+* fuzzy-clock-string::
+* fuzzy-clock-timer::
+
+Rounding Behavior Reference
+
+* Five-Minute Fuzziness::
+* Fifteen-Minute Fuzziness::
+* Half-Hour Fuzziness::
+* Hour Fuzziness::
+* Part-of-Day Fuzziness::
+* Part-of-Month Mapping::
+* Part-of-Season Mapping::
+* Part-of-Year Mapping::
+
+Troubleshooting
+
+* Fuzzy time doesn't appear in mode-line::
+* Mode-line shows "*invalid*"::
+* Fuzzy time doesn't update::
+* Wrong season displayed (Southern Hemisphere)::
+
+Development
+
+* Running Tests::
+* Test Coverage::
+
+Version History
+
+* 0.2.0 (2025): 020 (2025).
+* 0.1.0 (2025): 010 (2025).
+
+
+File: fuzzy-clock.info,  Node: Introduction,  Next: Getting Started,  Prev: Top,  Up: Top
+
+1 Introduction
+**************
+
+* Menu:
+
+* What is fuzzy-clock.el?: What is fuzzy-clockel?.
+* Why does this exist?::
+* Is this useful?::
+* Should you keep reading?::
+
+
+File: fuzzy-clock.info,  Node: What is fuzzy-clockel?,  Next: Why does this exist?,  Up: Introduction
+
+1.1 What is fuzzy-clock.el?
+===========================
+
+Fuzzy Clock is an Emacs package that displays time in increasingly vague
+and absurd ways.
+
+   Instead of seeing ‘14:32’, you could see "Half past two".
+
+   Or "Afternoon".
+
+   Or "Tuesday".
+
+   Or "Middle Fall".
+
+   Or just "2025" for the entire year.
+
+   Yes, really.
+
+
+File: fuzzy-clock.info,  Node: Why does this exist?,  Next: Is this useful?,  Prev: What is fuzzy-clockel?,  Up: Introduction
+
+1.2 Why does this exist?
+========================
+
+Because someone thought "What if my mode-line just said 'Afternoon' for
+six hours straight?"  and decided that was a reasonable idea.
+
+   Also, the KDE fuzzy clock widget exists, which means this madness has
+precedent.
+
+
+File: fuzzy-clock.info,  Node: Is this useful?,  Next: Should you keep reading?,  Prev: Why does this exist?,  Up: Introduction
+
+1.3 Is this useful?
+===================
+
+Maybe!  Some people claim it helps them:
+   • Stop obsessing over every passing minute
+   • Think in natural language instead of numbers
+   • Feel less anxious about time
+   • Annoy their coworkers when pair programming
+
+   But let's be honest: you're probably here because the idea of your
+mode-line displaying "Late Winter" sounds either delightful or
+horrifying, and you need to find out which.
+
+
+File: fuzzy-clock.info,  Node: Should you keep reading?,  Prev: Is this useful?,  Up: Introduction
+
+1.4 Should you keep reading?
+============================
+
+If you:
+   • Think "Early October" is a valid time
+   • Want to reduce time anxiety (or increase it dramatically)
+   • Enjoy things that are technically functional but philosophically
+     questionable
+   • Have ever thought "I wish my clock was less helpful"
+
+   Then yes, keep reading.
+
+
+File: fuzzy-clock.info,  Node: Getting Started,  Next: Understanding Fuzzy Time,  Prev: Introduction,  Up: Top
+
+2 Getting Started
+*****************
+
+Let's get you to a working fuzzy clock as quickly as possible.
+
+* Menu:
+
+* Step 1 Load the package::
+* Step 2 Enable it::
+* What you should see::
+* Did it work?::
+* Quick experiment::
+* Turn it off::
+* What's next?::
+
+
+File: fuzzy-clock.info,  Node: Step 1 Load the package,  Next: Step 2 Enable it,  Up: Getting Started
+
+2.1 Step 1: Load the package
+============================
+
+     ;; Assuming you've installed fuzzy-clock.el, load it:
+     (require 'fuzzy-clock)
+
+
+File: fuzzy-clock.info,  Node: Step 2 Enable it,  Next: What you should see,  Prev: Step 1 Load the package,  Up: Getting Started
+
+2.2 Step 2: Enable it
+=====================
+
+     ;; Turn on fuzzy clock mode
+     (fuzzy-clock-mode 1)
+
+
+File: fuzzy-clock.info,  Node: What you should see,  Next: Did it work?,  Prev: Step 2 Enable it,  Up: Getting Started
+
+2.3 What you should see
+=======================
+
+Look at your mode-line (the bar at the bottom of your Emacs window).
+You should see something like:
+
+     Three o'clock
+
+   Or:
+
+     Afternoon
+
+   Or:
+
+     Half past two
+
+   The exact text depends on what time it is right now.
+
+
+File: fuzzy-clock.info,  Node: Did it work?,  Next: Quick experiment,  Prev: What you should see,  Up: Getting Started
+
+2.4 Did it work?
+================
+
+If you see natural language time in your mode-line: *Congratulations!*
+You have a working fuzzy clock.
+
+   If you don't see anything, check that ‘global-mode-string’ is
+displayed in your mode-line configuration.  Most Emacs configurations
+include it by default.
+
+
+File: fuzzy-clock.info,  Node: Quick experiment,  Next: Turn it off,  Prev: Did it work?,  Up: Getting Started
+
+2.5 Quick experiment
+====================
+
+Try changing the time on your system clock (or just wait a few minutes).
+Watch your mode-line update automatically.  The default updates every 60
+seconds.
+
+
+File: fuzzy-clock.info,  Node: Turn it off,  Next: What's next?,  Prev: Quick experiment,  Up: Getting Started
+
+2.6 Turn it off
+===============
+
+Don't like it?  Turn it off just as easily:
+
+     (fuzzy-clock-mode 0)
+
+
+File: fuzzy-clock.info,  Node: What's next?,  Prev: Turn it off,  Up: Getting Started
+
+2.7 What's next?
+================
+
+You now have fuzzy time in your mode-line.  But "Three o'clock" might
+still be more precise than you want.
+
+   This is where things get weird.
+
+
+File: fuzzy-clock.info,  Node: Understanding Fuzzy Time,  Next: Reference,  Prev: Getting Started,  Up: Top
+
+3 Understanding Fuzzy Time
+**************************
+
+Or: "How vague do you want to be?"
+
+* Menu:
+
+* The Core Concept Fuzziness Levels::
+* Level 4 Hour (The Default)::
+* Level 1 Five Minutes (Maximum Precision)::
+* Level 2 Fifteen Minutes::
+* Level 3 Half Hour::
+* Level 5 Part of Day (The First Big Jump)::
+* Level 6 Day of Week::
+* Level 7 Part of Month (Where It Gets Weird)::
+* Level 8 Month::
+* Level 9 Part of Season (Committing to the Bit)::
+* Level 10 Part of Year (Why Not?)::
+* Level 11 Year (The Final Boss)::
+* The Pattern Or, "How We Justified This": The Pattern Or "How We Justified This".
+* Choosing Your Fuzziness Level::
+* The Philosophy of Rounding::
+* Understanding Update Intervals::
+* Beyond the Mode-line Other Display Methods::
+* Practical Configurations::
+* Advanced Topic Wait, Is This Actually Deep?: Advanced Topic Wait Is This Actually Deep?.
+* What You've Learned::
+
+
+File: fuzzy-clock.info,  Node: The Core Concept Fuzziness Levels,  Next: Level 4 Hour (The Default),  Up: Understanding Fuzzy Time
+
+3.1 The Core Concept: Fuzziness Levels
+======================================
+
+Fuzzy Clock has *eleven* different levels of vagueness.
+
+   At Level 1, you get normal human time like "Quarter past three."
+
+   At Level 11, your mode-line just says "2025" for twelve months
+straight.
+
+   The progression goes from "reasonably fuzzy" to "okay this is getting
+silly" to "wait, is this even a clock anymore?"
+
+   But here's the thing: they all actually work.  Let's see how
+ridiculous this gets.
+
+
+File: fuzzy-clock.info,  Node: Level 4 Hour (The Default),  Next: Level 1 Five Minutes (Maximum Precision),  Prev: The Core Concept Fuzziness Levels,  Up: Understanding Fuzzy Time
+
+3.2 Level 4: Hour (The Default)
+===============================
+
+Let's start with the default level, because it's the easiest to
+understand.
+
+     (setq fuzzy-clock-fuzziness 'hour)
+
+   At this level, time is rounded to the nearest hour:
+   • 14:00 to 14:29 → "Two o'clock"
+   • 14:30 to 15:29 → "Three o'clock"
+
+   Notice the rounding happens at the 30-minute mark.  This matches how
+humans naturally round: "It's about three" when it's 14:32.
+
+   Special cases:
+   • Midnight (00:00-00:29) → "Midnight" (not "Zero o'clock")
+   • Noon (12:00-12:29) → "Noon" (not "Twelve o'clock")
+
+   *Why this is the default:* It strikes a balance.  You still have a
+sense of progression through the day, but you're not watching minutes
+tick by.
+
+
+File: fuzzy-clock.info,  Node: Level 1 Five Minutes (Maximum Precision),  Next: Level 2 Fifteen Minutes,  Prev: Level 4 Hour (The Default),  Up: Understanding Fuzzy Time
+
+3.3 Level 1: Five Minutes (Maximum Precision)
+=============================================
+
+     (setq fuzzy-clock-fuzziness 'five-minutes)
+
+   This is the most precise level.  Time is rounded to 5-minute
+intervals:
+   • 14:03 → "Five past two"
+   • 14:17 → "Fifteen past two"
+   • 14:42 → "Twenty to three"
+
+   The magic is in the language.  Instead of "14:15", you see "Quarter
+past two".  It's still precise, but it's *linguistic* precision, not
+numeric precision.
+
+   This level uses natural expressions:
+   • 0 minutes → "Three o'clock"
+   • 5 minutes past → "Five past three"
+   • 15 minutes past → "Quarter past three"
+   • 30 minutes past → "Half past three"
+   • 15 minutes before → "Quarter to four"
+   • 5 minutes before → "Five to four"
+
+   *When to use this:* When you need precision but prefer natural
+language.  Good for people who like the KDE fuzzy clock at its most
+precise setting.
+
+
+File: fuzzy-clock.info,  Node: Level 2 Fifteen Minutes,  Next: Level 3 Half Hour,  Prev: Level 1 Five Minutes (Maximum Precision),  Up: Understanding Fuzzy Time
+
+3.4 Level 2: Fifteen Minutes
+============================
+
+     (setq fuzzy-clock-fuzziness 'fifteen-minutes)
+
+   Time rounds to 15-minute intervals:
+   • 14:00-14:06 → "Two o'clock"
+   • 14:07-14:22 → "Quarter past two"
+   • 14:23-14:37 → "Half past two"
+   • 14:38-14:52 → "Quarter to three"
+   • 14:53-15:06 → "Three o'clock"
+
+   This is useful when you want to track time in quarter-hour blocks.
+Many people schedule their days this way naturally.
+
+
+File: fuzzy-clock.info,  Node: Level 3 Half Hour,  Next: Level 5 Part of Day (The First Big Jump),  Prev: Level 2 Fifteen Minutes,  Up: Understanding Fuzzy Time
+
+3.5 Level 3: Half Hour
+======================
+
+     (setq fuzzy-clock-fuzziness 'half-hour)
+
+   Time rounds to 30-minute intervals:
+   • 14:00-14:14 → "Two o'clock"
+   • 14:15-14:44 → "Half past two"
+   • 14:45-15:14 → "Three o'clock"
+
+   Only three possible states per hour: on the hour, half past, or the
+next hour.
+
+   *When to use this:* When you want to think in half-hour blocks but
+still have a sense of time progression.
+
+
+File: fuzzy-clock.info,  Node: Level 5 Part of Day (The First Big Jump),  Next: Level 6 Day of Week,  Prev: Level 3 Half Hour,  Up: Understanding Fuzzy Time
+
+3.6 Level 5: Part of Day (The First Big Jump)
+=============================================
+
+Now we make a conceptual leap.  Instead of dividing hours, we divide the
+*day itself*.
+
+     (setq fuzzy-clock-fuzziness 'part-of-day)
+
+   Your mode-line will show one of four states:
+   • 06:00-11:59 → "Morning"
+   • 12:00-17:59 → "Afternoon"
+   • 18:00-21:59 → "Evening"
+   • 22:00-05:59 → "Night"
+
+   This changes how you relate to time.  You stop thinking in hours and
+start thinking in *periods*.
+
+   "Morning" doesn't tell you if it's 6 AM or 11 AM.  That's the point.
+It tells you the *character* of the time, not its precise position.
+
+   *When to use this:* When you want to stop micromanaging your time.
+When you want to think in terms of energy levels (morning energy,
+afternoon slump, evening wind-down) rather than clock positions.
+
+
+File: fuzzy-clock.info,  Node: Level 6 Day of Week,  Next: Level 7 Part of Month (Where It Gets Weird),  Prev: Level 5 Part of Day (The First Big Jump),  Up: Understanding Fuzzy Time
+
+3.7 Level 6: Day of Week
+========================
+
+     (setq fuzzy-clock-fuzziness 'day-of-week)
+
+   Your mode-line shows: "Monday", "Tuesday", etc.
+
+   Now we've zoomed out even further.  Hours don't matter.  The specific
+day matters.
+
+   This is useful when you're thinking about your week as a whole.
+"It's Tuesday" is more meaningful than "It's 14:32 on Tuesday" when
+you're planning weekly tasks.
+
+
+File: fuzzy-clock.info,  Node: Level 7 Part of Month (Where It Gets Weird),  Next: Level 8 Month,  Prev: Level 6 Day of Week,  Up: Understanding Fuzzy Time
+
+3.8 Level 7: Part of Month (Where It Gets Weird)
+================================================
+
+     (setq fuzzy-clock-fuzziness 'part-of-month)
+
+   Your mode-line shows: "Early October", "Middle October", "Late
+October"
+
+   Congratulations, you're now telling time with *vibes*.
+
+   The month is divided into three phases:
+   • Days 1-10: Early
+   • Days 11-20: Middle
+   • Days 21-end: Late
+
+   Is "Early October" a valid time?  Technically no.  Will it annoy
+people?  Absolutely.  Does it somehow work?  Kind of!
+
+   *When to use this:* When you want to think in monthly cycles but
+still pretend you're tracking time.  Good for confusing meeting
+scheduling bots.
+
+
+File: fuzzy-clock.info,  Node: Level 8 Month,  Next: Level 9 Part of Season (Committing to the Bit),  Prev: Level 7 Part of Month (Where It Gets Weird),  Up: Understanding Fuzzy Time
+
+3.9 Level 8: Month
+==================
+
+     (setq fuzzy-clock-fuzziness 'month)
+
+   Your mode-line shows: "January", "October", etc.
+
+   Useful for thinking about the year as a whole.  "It's October" tells
+you where you are in the annual cycle.
+
+
+File: fuzzy-clock.info,  Node: Level 9 Part of Season (Committing to the Bit),  Next: Level 10 Part of Year (Why Not?),  Prev: Level 8 Month,  Up: Understanding Fuzzy Time
+
+3.10 Level 9: Part of Season (Committing to the Bit)
+====================================================
+
+     (setq fuzzy-clock-fuzziness 'part-of-season)
+
+   Your mode-line shows: "Early Fall", "Middle Fall", "Late Fall"
+
+   We've abandoned all pretense of this being a clock now.  This is just
+vibes all the way down.
+
+   Each season has three months, and each month represents a phase:
+   • First month: Early (December = Early Winter, March = Early Spring,
+     etc.)
+   • Second month: Middle (January = Middle Winter, April = Middle
+     Spring, etc.)
+   • Third month: Late (February = Late Winter, May = Late Spring, etc.)
+
+   Your mode-line will say "Middle Fall" for the entirety of October.
+All of it.  Every meeting, every deadline, every "what time is it?"  —
+just "Middle Fall."
+
+   *When to use this:* When you've given up on punctuality entirely.
+When you want people to think you're either very zen or very confused.
+
+
+File: fuzzy-clock.info,  Node: Level 10 Part of Year (Why Not?),  Next: Level 11 Year (The Final Boss),  Prev: Level 9 Part of Season (Committing to the Bit),  Up: Understanding Fuzzy Time
+
+3.11 Level 10: Part of Year (Why Not?)
+======================================
+
+     (setq fuzzy-clock-fuzziness 'part-of-year)
+
+   Your mode-line shows: "Early 2025", "Middle 2025", "Late 2025"
+
+   At this point we're not even trying to be useful.  The year is
+divided into:
+   • Months 1-4: Early (January through April)
+   • Months 5-8: Middle (May through August)
+   • Months 9-12: Late (September through December)
+
+   Your mode-line will say "Early 2025" from January through April.
+That's four months.  One third of the year.  With the same time display.
+
+   This is either deeply calming or deeply unsettling.  There is no
+middle ground.
+
+   *When to use this:* When someone asks "What time is it?"  and you
+want to answer "Late 2025" with a completely straight face.
+
+
+File: fuzzy-clock.info,  Node: Level 11 Year (The Final Boss),  Next: The Pattern Or "How We Justified This",  Prev: Level 10 Part of Year (Why Not?),  Up: Understanding Fuzzy Time
+
+3.12 Level 11: Year (The Final Boss)
+====================================
+
+     (setq fuzzy-clock-fuzziness 'year)
+
+   Your mode-line shows: "2025"
+
+   We did it.  We've achieved maximum vagueness.  Your clock now
+displays "2025" for twelve consecutive months.
+
+   Is this useful?  No.  Is this a clock?  Debatable.  Does it spark
+joy?  Maybe!
+
+   *When to use this:* When you want to know what year it is but
+literally nothing else.  When you're working on geological timescales.
+When you've transcended time itself but still need to know if it's a
+leap year.
+
+   This exists purely because we could, not because we should.
+
+
+File: fuzzy-clock.info,  Node: The Pattern Or "How We Justified This",  Next: Choosing Your Fuzziness Level,  Prev: Level 11 Year (The Final Boss),  Up: Understanding Fuzzy Time
+
+3.13 The Pattern: Or, "How We Justified This"
+=============================================
+
+Notice the pattern in these levels:
+
+  1. Five minutes — Useful
+  2. Fifteen minutes — Still useful
+  3. Half hour — Getting fuzzy
+  4. Hour — The sweet spot
+  5. Part of day — Okay, this works
+  6. Day of week — Sure, why not
+  7. Part of month — Wait what
+  8. Month — Back to reasonable
+  9. Part of season — *Deeply* questionable
+  10. Part of year — Are we okay?
+  11. Year — We've gone too far
+
+   There's actually a pattern here (we swear this wasn't just random):
+
+   The "part of period" thing (early/middle/late) appears at three
+scales:
+   • Part of month (days 1-10, 11-20, 21+)
+   • Part of season (first/second/third month)
+   • Part of year (months 1-4, 5-8, 9-12)
+
+   It's like a fractal, if fractals were made of increasingly absurd
+time displays.
+
+   Levels 1-4: Actual time tracking Levels 5-6: Time but make it chill
+Levels 7-11: Is this even a clock anymore
+
+
+File: fuzzy-clock.info,  Node: Choosing Your Fuzziness Level,  Next: The Philosophy of Rounding,  Prev: The Pattern Or "How We Justified This",  Up: Understanding Fuzzy Time
+
+3.14 Choosing Your Fuzziness Level
+==================================
+
+Here's how to think about it:
+
+   *Ask yourself:* What's the smallest unit of time that matters for how
+I want to feel right now?
+
+   • Need to catch a meeting in 15 minutes?  → Use ‘five-minutes’ or
+     ‘fifteen-minutes’
+   • Want to reduce time anxiety?  → Use ‘hour’ or ‘part-of-day’
+   • Planning your week?  → Use ‘day-of-week’
+   • Tracking monthly cycles?  → Use ‘part-of-month’ or ‘month’
+   • Thinking in seasonal rhythms?  → Use ‘part-of-season’
+   • Working on annual projects?  → Use ‘part-of-year’ or ‘year’
+
+   You can change this *anytime*.  Time is contextual.  Your fuzziness
+should be too.
+
+
+File: fuzzy-clock.info,  Node: The Philosophy of Rounding,  Next: Understanding Update Intervals,  Prev: Choosing Your Fuzziness Level,  Up: Understanding Fuzzy Time
+
+3.15 The Philosophy of Rounding
+===============================
+
+Every fuzzy clock implementation has to make decisions about rounding.
+Let's understand the philosophy here.
+
+* Menu:
+
+* Hour-level rounding::
+* Special handling for midnight and noon::
+* The "past" and "to" logic::
+* Why these specific boundaries?::
+
+
+File: fuzzy-clock.info,  Node: Hour-level rounding,  Next: Special handling for midnight and noon,  Up: The Philosophy of Rounding
+
+3.15.1 Hour-level rounding
+--------------------------
+
+At ‘hour’ fuzziness, 14:32 becomes "Three o'clock" because 32 minutes is
+closer to the *next* hour (15:00) than the current hour (14:00).
+
+   The rounding point is 30 minutes.  This matches human intuition:
+"It's about three" when it's 14:32.
+
+
+File: fuzzy-clock.info,  Node: Special handling for midnight and noon,  Next: The "past" and "to" logic,  Prev: Hour-level rounding,  Up: The Philosophy of Rounding
+
+3.15.2 Special handling for midnight and noon
+---------------------------------------------
+
+Midnight and noon are *special moments*.  They have names.  We say
+"Midnight" and "Noon", not "Zero o'clock" and "Twelve o'clock".
+
+   Fuzzy Clock respects this.  At levels 1-4, midnight and noon appear
+as words, not numbers.
+
+
+File: fuzzy-clock.info,  Node: The "past" and "to" logic,  Next: Why these specific boundaries?,  Prev: Special handling for midnight and noon,  Up: The Philosophy of Rounding
+
+3.15.3 The "past" and "to" logic
+--------------------------------
+
+In English, we say:
+   • "Quarter past three" (3:15)
+   • "Quarter to four" (3:45)
+
+   We use "past" for the first half of the hour, "to" for the second
+half.
+
+   The switch happens at 30 minutes (half past).  This is
+language-specific, and fuzzy-clock implements the English convention.
+
+
+File: fuzzy-clock.info,  Node: Why these specific boundaries?,  Prev: The "past" and "to" logic,  Up: The Philosophy of Rounding
+
+3.15.4 Why these specific boundaries?
+-------------------------------------
+
+For five-minute fuzziness:
+   • 14:03 → "Five past two"
+   • 14:07 → "Five past two"
+
+   The boundaries are ±2 minutes.  Why?
+
+   Because that's how humans round.  If someone asks "What time is it?"
+at 14:07, you'd say "About five past two", not "Seven past two".
+
+   The rounding boundaries match *natural linguistic rounding*.
+
+
+File: fuzzy-clock.info,  Node: Understanding Update Intervals,  Next: Beyond the Mode-line Other Display Methods,  Prev: The Philosophy of Rounding,  Up: Understanding Fuzzy Time
+
+3.16 Understanding Update Intervals
+===================================
+
+By default, fuzzy-clock updates every 60 seconds:
+
+     (setq fuzzy-clock-update-interval 60)
+
+   *Why does this matter?*
+
+   If your fuzziness is set to ‘hour’, your mode-line will show "Three
+o'clock" for a full hour.  The 60-second update means the display will
+change within a minute of when it should.
+
+   But if your fuzziness is ‘year’, updating every 60 seconds is
+overkill.  Years last twelve months.  You could update once a day:
+
+     (setq fuzzy-clock-fuzziness 'year)
+     (setq fuzzy-clock-update-interval 86400)  ; 24 hours
+
+   *Match your update interval to your fuzziness level.*
+
+   Recommended intervals:
+   • ‘five-minutes’ → 60 seconds (1 minute)
+   • ‘fifteen-minutes’ → 300 seconds (5 minutes)
+   • ‘half-hour’ → 600 seconds (10 minutes)
+   • ‘hour’ → 600 seconds (10 minutes)
+   • ‘part-of-day’ → 3600 seconds (1 hour)
+   • ‘day-of-week’ → 3600 seconds (1 hour)
+   • ‘part-of-month’ → 86400 seconds (24 hours)
+   • ‘month’ → 86400 seconds (24 hours)
+   • ‘part-of-season’ → 86400 seconds (24 hours)
+   • ‘part-of-year’ → 86400 seconds (24 hours)
+   • ‘year’ → 86400 seconds (24 hours)
+
+   Less frequent updates = less CPU usage = more battery life.
+
+
+File: fuzzy-clock.info,  Node: Beyond the Mode-line Other Display Methods,  Next: Practical Configurations,  Prev: Understanding Update Intervals,  Up: Understanding Fuzzy Time
+
+3.17 Beyond the Mode-line: Other Display Methods
+================================================
+
+The mode-line integration is the main use case, but fuzzy-clock offers
+two other ways to view fuzzy time.
+
+* Menu:
+
+* One-time display in minibuffer::
+* Dedicated buffer display::
+
+
+File: fuzzy-clock.info,  Node: One-time display in minibuffer,  Next: Dedicated buffer display,  Up: Beyond the Mode-line Other Display Methods
+
+3.17.1 One-time display in minibuffer
+-------------------------------------
+
+     M-x fuzzy-clock-show
+
+   This shows the current fuzzy time once in the minibuffer, then
+disappears.
+
+   Useful when you have ‘fuzzy-clock-mode’ disabled but occasionally
+want to check fuzzy time.
+
+   You could bind it to a key:
+
+     (global-set-key (kbd "C-c t") 'fuzzy-clock-show)
+
+   Now ‘C-c t’ shows you fuzzy time on demand.
+
+
+File: fuzzy-clock.info,  Node: Dedicated buffer display,  Prev: One-time display in minibuffer,  Up: Beyond the Mode-line Other Display Methods
+
+3.17.2 Dedicated buffer display
+-------------------------------
+
+     M-x fuzzy-clock-display-buffer
+
+   This creates a buffer called ‘*Fuzzy Clock*’ showing the current
+fuzzy time.
+
+   The buffer doesn't auto-update.  It's a snapshot of fuzzy time at the
+moment you called the command.
+
+   *Why would you use this?*
+
+   Honestly?  Probably never.  It's there for completeness.  The
+mode-line integration is what you actually want.
+
+   But if you're building a custom dashboard or information display, you
+could incorporate this buffer.
+
+
+File: fuzzy-clock.info,  Node: Practical Configurations,  Next: Advanced Topic Wait Is This Actually Deep?,  Prev: Beyond the Mode-line Other Display Methods,  Up: Understanding Fuzzy Time
+
+3.18 Practical Configurations
+=============================
+
+Let's put this all together with some real-world configurations.
+
+* Menu:
+
+* Configuration 1 The Default Experience::
+* Configuration 2 Maximum Precision::
+* Configuration 3 Deep Focus Mode::
+* Configuration 4 Weekly Planning Mode::
+* Configuration 5 Context-Aware Switching::
+
+
+File: fuzzy-clock.info,  Node: Configuration 1 The Default Experience,  Next: Configuration 2 Maximum Precision,  Up: Practical Configurations
+
+3.18.1 Configuration 1: The Default Experience
+----------------------------------------------
+
+     (require 'fuzzy-clock)
+     (setq fuzzy-clock-fuzziness 'hour)
+     (setq fuzzy-clock-update-interval 60)
+     (fuzzy-clock-mode 1)
+
+   This is the recommended starting point.  Hour-level fuzziness,
+updates every minute.
+
+
+File: fuzzy-clock.info,  Node: Configuration 2 Maximum Precision,  Next: Configuration 3 Deep Focus Mode,  Prev: Configuration 1 The Default Experience,  Up: Practical Configurations
+
+3.18.2 Configuration 2: Maximum Precision
+-----------------------------------------
+
+     (require 'fuzzy-clock)
+     (setq fuzzy-clock-fuzziness 'five-minutes)
+     (setq fuzzy-clock-update-interval 60)
+     (fuzzy-clock-mode 1)
+
+   You want natural language but you need precision.  "Quarter past
+three" instead of "15:15".
+
+
+File: fuzzy-clock.info,  Node: Configuration 3 Deep Focus Mode,  Next: Configuration 4 Weekly Planning Mode,  Prev: Configuration 2 Maximum Precision,  Up: Practical Configurations
+
+3.18.3 Configuration 3: Deep Focus Mode
+---------------------------------------
+
+     (require 'fuzzy-clock)
+     (setq fuzzy-clock-fuzziness 'part-of-day)
+     (setq fuzzy-clock-update-interval 3600)  ; Update once per hour
+     (fuzzy-clock-mode 1)
+
+   You want to eliminate time anxiety.  "Afternoon" is all you need to
+know.  Updates once per hour to save CPU.
+
+
+File: fuzzy-clock.info,  Node: Configuration 4 Weekly Planning Mode,  Next: Configuration 5 Context-Aware Switching,  Prev: Configuration 3 Deep Focus Mode,  Up: Practical Configurations
+
+3.18.4 Configuration 4: Weekly Planning Mode
+--------------------------------------------
+
+     (require 'fuzzy-clock)
+     (setq fuzzy-clock-fuzziness 'day-of-week)
+     (setq fuzzy-clock-update-interval 3600)
+     (fuzzy-clock-mode 1)
+
+   You're thinking in weekly cycles.  "Tuesday" is more useful than
+"14:32 on Tuesday".
+
+
+File: fuzzy-clock.info,  Node: Configuration 5 Context-Aware Switching,  Prev: Configuration 4 Weekly Planning Mode,  Up: Practical Configurations
+
+3.18.5 Configuration 5: Context-Aware Switching
+-----------------------------------------------
+
+     (require 'fuzzy-clock)
+
+     ;; Default: hour fuzziness
+     (setq fuzzy-clock-fuzziness 'hour)
+     (fuzzy-clock-mode 1)
+
+     ;; Define quick-switch functions
+     (defun my-fuzzy-clock-focus-mode ()
+       "Switch to part-of-day fuzziness for deep focus."
+       (interactive)
+       (setq fuzzy-clock-fuzziness 'part-of-day)
+       (setq fuzzy-clock-update-interval 3600)
+       (message "Fuzzy clock: Focus mode (part-of-day)"))
+
+     (defun my-fuzzy-clock-precise-mode ()
+       "Switch to five-minute fuzziness for meetings."
+       (interactive)
+       (setq fuzzy-clock-fuzziness 'five-minutes)
+       (setq fuzzy-clock-update-interval 60)
+       (message "Fuzzy clock: Precise mode (five-minutes)"))
+
+     (defun my-fuzzy-clock-default-mode ()
+       "Reset to default hour fuzziness."
+       (interactive)
+       (setq fuzzy-clock-fuzziness 'hour)
+       (setq fuzzy-clock-update-interval 60)
+       (message "Fuzzy clock: Default mode (hour)"))
+
+     ;; Bind to keys
+     (global-set-key (kbd "C-c t f") 'my-fuzzy-clock-focus-mode)
+     (global-set-key (kbd "C-c t p") 'my-fuzzy-clock-precise-mode)
+     (global-set-key (kbd "C-c t d") 'my-fuzzy-clock-default-mode)
+
+   Now you can switch fuzziness levels based on context:
+   • ‘C-c t f’ → Focus mode (part-of-day)
+   • ‘C-c t p’ → Precise mode (five-minutes)
+   • ‘C-c t d’ → Default mode (hour)
+
+
+File: fuzzy-clock.info,  Node: Advanced Topic Wait Is This Actually Deep?,  Next: What You've Learned,  Prev: Practical Configurations,  Up: Understanding Fuzzy Time
+
+3.19 Advanced Topic: Wait, Is This Actually Deep?
+=================================================
+
+Okay, look.  We've been joking around, but there's something here.
+
+   Digital time (14:32:47) is weirdly precise for how humans actually
+think.  Nobody says "Let's meet at fourteen thirty-two."  We say "around
+half past two" or "afternoon."
+
+   When you use fuzzy time, you're acknowledging that most of the time,
+you don't actually need to know it's 14:32.  You need to know it's
+"afternoon" or "about three."
+
+   Does this reduce time anxiety?  Maybe!  Does it help you focus?
+Possibly!  Will it make you late to meetings?  Absolutely not, you have
+a phone.
+
+   The real magic is that "Afternoon" doesn't change for six hours.  You
+stop checking your mode-line every thirty seconds because it literally
+won't tell you anything new.
+
+   This is either:
+   • A feature that helps you focus
+   • A bug that makes the package useless
+   • Both simultaneously (Schrödinger's clock)
+
+   Use at your own risk.  Results may include:
+   • Reduced time anxiety
+   • Increased confusion
+   • Coworkers asking why your Emacs says "Middle Fall"
+   • Accidentally missing meetings (use a real clock for those)
+
+
+File: fuzzy-clock.info,  Node: What You've Learned,  Prev: Advanced Topic Wait Is This Actually Deep?,  Up: Understanding Fuzzy Time
+
+3.20 What You've Learned
+========================
+
+You now understand:
+
+  1. How to make your Emacs tell time in increasingly questionable ways
+  2. That there are 11 levels of fuzziness, and only like 6 of them are
+     reasonable
+  3. That "Middle Fall" is technically a time if you squint hard enough
+  4. How to configure your mode-line to confuse everyone around you
+  5. That this might actually help with focus, or it might just be
+     silly, or both
+
+   You're now equipped to use fuzzy-clock.  Whether you *should* use it
+is between you and your sense of judgment.
+
+   Good luck explaining "Early 2025" to your pair programming partner.
+
+
+File: fuzzy-clock.info,  Node: Reference,  Prev: Understanding Fuzzy Time,  Up: Top
+
+4 Reference
+***********
+
+This section is for quick lookup when you know what you're looking for.
+
+* Menu:
+
+* Installation::
+* Commands::
+* Customization Variables::
+* Fuzziness Levels::
+* Functions::
+* Variables::
+* Rounding Behavior Reference::
+* Requirements::
+* Known Limitations::
+* Troubleshooting::
+* Development::
+* Version History::
+* License::
+* Contributing::
+* Credits::
+* Contact::
+
+
+File: fuzzy-clock.info,  Node: Installation,  Next: Commands,  Up: Reference
+
+4.1 Installation
+================
+
+* Menu:
+
+* Via package manager::
+* Manual installation::
+
+
+File: fuzzy-clock.info,  Node: Via package manager,  Next: Manual installation,  Up: Installation
+
+4.1.1 Via package manager
+-------------------------
+
+Not yet published to MELPA.  Manual installation required.
+
+
+File: fuzzy-clock.info,  Node: Manual installation,  Prev: Via package manager,  Up: Installation
+
+4.1.2 Manual installation
+-------------------------
+
+  1. Clone the repository or download ‘fuzzy-clock.el’
+  2. Add to your ‘load-path’:
+
+     (add-to-list 'load-path "/path/to/fuzzy-clock.el")
+     (require 'fuzzy-clock)
+
+
+File: fuzzy-clock.info,  Node: Commands,  Next: Customization Variables,  Prev: Installation,  Up: Reference
+
+4.2 Commands
+============
+
+Command                        Description
+----------------------------------------------------------------------------
+‘fuzzy-clock-mode’             Toggle global fuzzy clock mode (mode-line)
+‘fuzzy-clock-show’             Display fuzzy time once in minibuffer
+‘fuzzy-clock-display-buffer’   Display fuzzy time in dedicated buffer
+
+
+File: fuzzy-clock.info,  Node: Customization Variables,  Next: Fuzziness Levels,  Prev: Commands,  Up: Reference
+
+4.3 Customization Variables
+===========================
+
+Variable                        Type      Default   Description
+----------------------------------------------------------------------------------
+‘fuzzy-clock-fuzziness’         symbol    ‘'hour’   Fuzziness level (see below)
+‘fuzzy-clock-update-interval’   integer   ‘60’      Seconds between updates
+
+
+File: fuzzy-clock.info,  Node: Fuzziness Levels,  Next: Functions,  Prev: Customization Variables,  Up: Reference
+
+4.4 Fuzziness Levels
+====================
+
+Symbol               Description                       Example Output
+------------------------------------------------------------------------------
+‘'five-minutes’      Rounds to 5-minute intervals      "Quarter past three"
+‘'fifteen-minutes’   Rounds to 15-minute intervals     "Half past three"
+‘'half-hour’         Rounds to 30-minute intervals     "Three o'clock"
+‘'hour’              Rounds to hour                    "Three o'clock"
+‘'part-of-day’       Morning/Afternoon/Evening/Night   "Afternoon"
+‘'day-of-week’       Monday through Sunday             "Tuesday"
+‘'part-of-month’     Part of month (early/mid/late)    "Early October"
+‘'month’             Month name                        "October"
+‘'part-of-season’    Part of season (early/mid/late)   "Middle Fall"
+‘'part-of-year’      Part of year (early/mid/late)     "Late 2025"
+‘'year’              Year number                       "2025"
+
+
+File: fuzzy-clock.info,  Node: Functions,  Next: Variables,  Prev: Fuzziness Levels,  Up: Reference
+
+4.5 Functions
+=============
+
+* Menu:
+
+* User-Facing Functions::
+* Internal Functions::
+
+
+File: fuzzy-clock.info,  Node: User-Facing Functions,  Next: Internal Functions,  Up: Functions
+
+4.5.1 User-Facing Functions
+---------------------------
+
+  1. ‘(fuzzy-clock-mode &optional ARG)’
+
+     Global minor mode to display fuzzy time in mode-line.
+
+     With prefix ARG, enable if positive, disable if zero or negative.
+
+     When enabled:
+        • Adds fuzzy time to ‘global-mode-string’
+        • Starts update timer
+        • Updates every ‘fuzzy-clock-update-interval’ seconds
+
+     When disabled:
+        • Removes from ‘global-mode-string’
+        • Cancels timer
+
+  2. ‘(fuzzy-clock-show)’
+
+     Display current fuzzy time in minibuffer.
+
+     Interactive command.  One-time display, does not update.
+
+  3. ‘(fuzzy-clock-display-buffer)’
+
+     Display current fuzzy time in dedicated buffer.
+
+     Creates or switches to ‘*Fuzzy Clock*’ buffer.  Snapshot at time of
+     call, does not auto-update.
+
+
+File: fuzzy-clock.info,  Node: Internal Functions,  Prev: User-Facing Functions,  Up: Functions
+
+4.5.2 Internal Functions
+------------------------
+
+  1. ‘(fuzzy-clock-format-time FUZZINESS HOUR MINUTE &optional DAY MONTH
+     YEAR DOW DST UTCOFF)’
+
+     Format time as fuzzy string based on FUZZINESS level.
+
+     Required arguments:
+        • ‘FUZZINESS’: Symbol indicating fuzziness level
+        • ‘HOUR’: Hour (0-23)
+        • ‘MINUTE’: Minute (0-59)
+
+     Optional arguments (required for some fuzziness levels):
+        • ‘DAY’: Day of month (1-31)
+        • ‘MONTH’: Month (1-12)
+        • ‘YEAR’: Year (e.g., 2025)
+        • ‘DOW’: Day of week (0=Sunday, 6=Saturday)
+        • ‘DST’: Daylight saving time flag
+        • ‘UTCOFF’: UTC offset
+
+     Returns: String representation of fuzzy time.
+
+  2. ‘(fuzzy-clock-format-season MONTH)’
+
+     Format season based on MONTH (1-12).
+
+     Returns: "Winter", "Spring", "Summer", or "Fall"
+
+  3. ‘(fuzzy-clock--hour-to-word HOUR)’
+
+     Convert HOUR (0-23) to word form in 12-hour format.
+
+     Examples:
+        • 0 or 12 → "Twelve"
+        • 3 or 15 → "Three"
+        • 23 → "Eleven"
+
+     Returns: Capitalized hour word
+
+  4. ‘(fuzzy-clock-update)’
+
+     Internal function.  Updates ‘fuzzy-clock-string’ with current time.
+
+     Called automatically by timer.  Do not call directly.
+
+
+File: fuzzy-clock.info,  Node: Variables,  Next: Rounding Behavior Reference,  Prev: Functions,  Up: Reference
+
+4.6 Variables
+=============
+
+* Menu:
+
+* fuzzy-clock-string::
+* fuzzy-clock-timer::
+
+
+File: fuzzy-clock.info,  Node: fuzzy-clock-string,  Next: fuzzy-clock-timer,  Up: Variables
+
+4.6.1 ‘fuzzy-clock-string’
+--------------------------
+
+String displayed in mode-line showing fuzzy time.
+
+   This variable is marked as ‘risky-local-variable’ to allow evaluation
+in mode-line.  Do not modify directly.  Updated by ‘fuzzy-clock-update’.
+
+
+File: fuzzy-clock.info,  Node: fuzzy-clock-timer,  Prev: fuzzy-clock-string,  Up: Variables
+
+4.6.2 ‘fuzzy-clock-timer’
+-------------------------
+
+Timer object for updating fuzzy clock.
+
+   Do not modify directly.  Managed by ‘fuzzy-clock-mode’.
+
+
+File: fuzzy-clock.info,  Node: Rounding Behavior Reference,  Next: Requirements,  Prev: Variables,  Up: Reference
+
+4.7 Rounding Behavior Reference
+===============================
+
+* Menu:
+
+* Five-Minute Fuzziness::
+* Fifteen-Minute Fuzziness::
+* Half-Hour Fuzziness::
+* Hour Fuzziness::
+* Part-of-Day Fuzziness::
+* Part-of-Month Mapping::
+* Part-of-Season Mapping::
+* Part-of-Year Mapping::
+
+
+File: fuzzy-clock.info,  Node: Five-Minute Fuzziness,  Next: Fifteen-Minute Fuzziness,  Up: Rounding Behavior Reference
+
+4.7.1 Five-Minute Fuzziness
+---------------------------
+
+Minute Range   Rounded To   Display Example
+-------------------------------------------------------
+0-2            0            "Three o'clock"
+3-7            5            "Five past three"
+8-12           10           "Ten past three"
+13-17          15           "Quarter past three"
+18-22          20           "Twenty past three"
+23-27          25           "Twenty five past three"
+28-32          30           "Half past three"
+33-37          35           "Twenty five to four"
+38-42          40           "Twenty to four"
+43-47          45           "Quarter to four"
+48-52          50           "Ten to four"
+53-57          55           "Five to four"
+58-59          60 (→next)   "Four o'clock"
+
+
+File: fuzzy-clock.info,  Node: Fifteen-Minute Fuzziness,  Next: Half-Hour Fuzziness,  Prev: Five-Minute Fuzziness,  Up: Rounding Behavior Reference
+
+4.7.2 Fifteen-Minute Fuzziness
+------------------------------
+
+Minute Range   Rounded To   Display Example
+---------------------------------------------------
+0-6            0            "Three o'clock"
+7-22           15           "Quarter past three"
+23-37          30           "Half past three"
+38-52          45           "Quarter to four"
+53-59          60 (→next)   "Four o'clock"
+
+
+File: fuzzy-clock.info,  Node: Half-Hour Fuzziness,  Next: Hour Fuzziness,  Prev: Fifteen-Minute Fuzziness,  Up: Rounding Behavior Reference
+
+4.7.3 Half-Hour Fuzziness
+-------------------------
+
+Minute Range   Rounded To   Display Example
+------------------------------------------------
+0-14           0            "Three o'clock"
+15-44          30           "Half past three"
+45-59          60 (→next)   "Four o'clock"
+
+
+File: fuzzy-clock.info,  Node: Hour Fuzziness,  Next: Part-of-Day Fuzziness,  Prev: Half-Hour Fuzziness,  Up: Rounding Behavior Reference
+
+4.7.4 Hour Fuzziness
+--------------------
+
+Minute Range   Rounded To   Display Example
+----------------------------------------------
+0-29           0            "Three o'clock"
+30-59          60 (→next)   "Four o'clock"
+
+
+File: fuzzy-clock.info,  Node: Part-of-Day Fuzziness,  Next: Part-of-Month Mapping,  Prev: Hour Fuzziness,  Up: Rounding Behavior Reference
+
+4.7.5 Part-of-Day Fuzziness
+---------------------------
+
+Hour Range   Display
+---------------------------
+6-11         "Morning"
+12-17        "Afternoon"
+18-21        "Evening"
+22-5         "Night"
+
+
+File: fuzzy-clock.info,  Node: Part-of-Month Mapping,  Next: Part-of-Season Mapping,  Prev: Part-of-Day Fuzziness,  Up: Rounding Behavior Reference
+
+4.7.6 Part-of-Month Mapping
+---------------------------
+
+Day Range   Part     Display Example
+----------------------------------------
+1-10        Early    "Early October"
+11-20       Middle   "Middle October"
+21-31       Late     "Late October"
+
+
+File: fuzzy-clock.info,  Node: Part-of-Season Mapping,  Next: Part-of-Year Mapping,  Prev: Part-of-Month Mapping,  Up: Rounding Behavior Reference
+
+4.7.7 Part-of-Season Mapping
+----------------------------
+
+Month in Season   Part     Winter Example    Spring Example    Summer Example    Fall Example
+-------------------------------------------------------------------------------------------------
+First month       Early    "Early Winter"    "Early Spring"    "Early Summer"    "Early Fall"
+Second month      Middle   "Middle Winter"   "Middle Spring"   "Middle Summer"   "Middle Fall"
+Third month       Late     "Late Winter"     "Late Spring"     "Late Summer"     "Late Fall"
+
+   Seasons are defined as:
+   • Winter: December (Early), January (Middle), February (Late)
+   • Spring: March (Early), April (Middle), May (Late)
+   • Summer: June (Early), July (Middle), August (Late)
+   • Fall: September (Early), October (Middle), November (Late)
+
+
+File: fuzzy-clock.info,  Node: Part-of-Year Mapping,  Prev: Part-of-Season Mapping,  Up: Rounding Behavior Reference
+
+4.7.8 Part-of-Year Mapping
+--------------------------
+
+Month Range   Part     Display Example
+-----------------------------------------
+1-4           Early    "Early 2025"
+5-8           Middle   "Middle 2025"
+9-12          Late     "Late 2025"
+
+
+File: fuzzy-clock.info,  Node: Requirements,  Next: Known Limitations,  Prev: Rounding Behavior Reference,  Up: Reference
+
+4.8 Requirements
+================
+
+   • Emacs 24.4 or later
+   • No external dependencies
+
+
+File: fuzzy-clock.info,  Node: Known Limitations,  Next: Troubleshooting,  Prev: Requirements,  Up: Reference
+
+4.9 Known Limitations
+=====================
+
+  1. Language support: Currently English only
+  2. Season definitions: Northern Hemisphere (December-February =
+     Winter)
+  3. 12-hour format only: No 24-hour word format
+  4. Mode-line integration only: No header-line or tab-bar support
+
+
+File: fuzzy-clock.info,  Node: Troubleshooting,  Next: Development,  Prev: Known Limitations,  Up: Reference
+
+4.10 Troubleshooting
+====================
+
+* Menu:
+
+* Fuzzy time doesn't appear in mode-line::
+* Mode-line shows "*invalid*"::
+* Fuzzy time doesn't update::
+* Wrong season displayed (Southern Hemisphere)::
+
+
+File: fuzzy-clock.info,  Node: Fuzzy time doesn't appear in mode-line,  Next: Mode-line shows "*invalid*",  Up: Troubleshooting
+
+4.10.1 Fuzzy time doesn't appear in mode-line
+---------------------------------------------
+
+Check that ‘global-mode-string’ is included in your mode-line format:
+
+     ;; Evaluate this to check:
+     global-mode-string
+
+     ;; Should include: (:eval fuzzy-clock-string)
+
+   If it's missing, your mode-line configuration might be overriding the
+default.
+
+
+File: fuzzy-clock.info,  Node: Mode-line shows "*invalid*",  Next: Fuzzy time doesn't update,  Prev: Fuzzy time doesn't appear in mode-line,  Up: Troubleshooting
+
+4.10.2 Mode-line shows "*invalid*"
+----------------------------------
+
+This happens if ‘fuzzy-clock-string’ isn't marked as a risky variable.
+
+   Fuzzy-clock sets this automatically, but some configurations might
+block it.
+
+   Check:
+
+     (get 'fuzzy-clock-string 'risky-local-variable)
+     ;; Should return: t
+
+   If it returns ‘nil’, manually set it:
+
+     (put 'fuzzy-clock-string 'risky-local-variable t)
+
+
+File: fuzzy-clock.info,  Node: Fuzzy time doesn't update,  Next: Wrong season displayed (Southern Hemisphere),  Prev: Mode-line shows "*invalid*",  Up: Troubleshooting
+
+4.10.3 Fuzzy time doesn't update
+--------------------------------
+
+Check that the timer is running:
+
+     fuzzy-clock-timer
+     ;; Should return a timer object like: [t 0 60 60 fuzzy-clock-update nil nil]
+
+   If it's ‘nil’, the timer isn't running.  Try:
+
+     (fuzzy-clock-mode 0)
+     (fuzzy-clock-mode 1)
+
+
+File: fuzzy-clock.info,  Node: Wrong season displayed (Southern Hemisphere),  Prev: Fuzzy time doesn't update,  Up: Troubleshooting
+
+4.10.4 Wrong season displayed (Southern Hemisphere)
+---------------------------------------------------
+
+The season definitions are Northern Hemisphere by default.
+
+   Current workaround: The season feature isn't customizable yet.
+
+   Future enhancement: Add customization for hemisphere.
+
+
+File: fuzzy-clock.info,  Node: Development,  Next: Version History,  Prev: Troubleshooting,  Up: Reference
+
+4.11 Development
+================
+
+* Menu:
+
+* Running Tests::
+* Test Coverage::
+
+
+File: fuzzy-clock.info,  Node: Running Tests,  Next: Test Coverage,  Up: Development
+
+4.11.1 Running Tests
+--------------------
+
+Tests use Buttercup framework via Eldev:
+
+     # Install Eldev (if not already installed)
+     curl -fsSL https://raw.github.com/doublep/eldev/master/webinstall/github-eldev | sh
+
+     # Run tests
+     eldev test
+
+
+File: fuzzy-clock.info,  Node: Test Coverage,  Prev: Running Tests,  Up: Development
+
+4.11.2 Test Coverage
+--------------------
+
+The test suite includes:
+   • Rounding behavior tests for all fuzziness levels
+   • Part-of-period tests (month, season, year)
+   • Mode-line integration tests
+   • Special case tests (midnight, noon)
+   • Edge case tests (hour wraparound)
+   • Display method tests
+   • Season helper function tests
+
+   140 acceptance tests ensure correctness.
+
+
+File: fuzzy-clock.info,  Node: Version History,  Next: License,  Prev: Development,  Up: Reference
+
+4.12 Version History
+====================
+
+* Menu:
+
+* 0.2.0 (2025): 020 (2025).
+* 0.1.0 (2025): 010 (2025).
+
+
+File: fuzzy-clock.info,  Node: 020 (2025),  Next: 010 (2025),  Up: Version History
+
+4.12.1 0.2.0 (2025)
+-------------------
+
+   • Refactored granularity progression to use part-of-period pattern
+   • Replaced ‘'week’ with ‘'part-of-month’ (early/middle/late month)
+   • Replaced ‘'season’ with ‘'part-of-season’ (early/middle/late
+     season)
+   • Added ‘'part-of-year’ (early/middle/late year)
+   • Added ‘'year’ (year number)
+   • Total fuzziness levels increased from 9 to 11
+   • Introduced fractal "part of period" pattern across three scales
+   • Expanded test suite to 140 acceptance tests
+   • Updated documentation to explain new progression pattern
+
+
+File: fuzzy-clock.info,  Node: 010 (2025),  Prev: 020 (2025),  Up: Version History
+
+4.12.2 0.1.0 (2025)
+-------------------
+
+   • Initial release
+   • 9 fuzziness levels
+   • Mode-line integration
+   • Minibuffer display
+   • Dedicated buffer display
+   • Comprehensive test suite
+
+
+File: fuzzy-clock.info,  Node: License,  Next: Contributing,  Prev: Version History,  Up: Reference
+
+4.13 License
+============
+
+See LICENSE file in repository.
+
+
+File: fuzzy-clock.info,  Node: Contributing,  Next: Credits,  Prev: License,  Up: Reference
+
+4.14 Contributing
+=================
+
+Contributions welcome.  See CONTRIBUTING file or repository issues.
+
+
+File: fuzzy-clock.info,  Node: Credits,  Next: Contact,  Prev: Contributing,  Up: Reference
+
+4.15 Credits
+============
+
+Inspired by the KDE fuzzy clock widget.
+
+
+File: fuzzy-clock.info,  Node: Contact,  Prev: Credits,  Up: Reference
+
+4.16 Contact
+============
+
+See repository for issue tracker and maintainer contact.
+
+
+Tag Table:
+Node: Top207
+Node: Introduction3107
+Node: What is fuzzy-clockel?3366
+Node: Why does this exist?3802
+Node: Is this useful?4202
+Node: Should you keep reading?4781
+Node: Getting Started5239
+Node: Step 1 Load the package5608
+Node: Step 2 Enable it5860
+Node: What you should see6098
+Node: Did it work?6499
+Node: Quick experiment6923
+Node: Turn it off7236
+Node: What's next?7455
+Node: Understanding Fuzzy Time7723
+Node: The Core Concept Fuzziness Levels8731
+Node: Level 4 Hour (The Default)9356
+Node: Level 1 Five Minutes (Maximum Precision)10288
+Node: Level 2 Fifteen Minutes11400
+Node: Level 3 Half Hour12037
+Node: Level 5 Part of Day (The First Big Jump)12643
+Node: Level 6 Day of Week13658
+Node: Level 7 Part of Month (Where It Gets Weird)14248
+Node: Level 8 Month15083
+Node: Level 9 Part of Season (Committing to the Bit)15515
+Node: Level 10 Part of Year (Why Not?)16635
+Node: Level 11 Year (The Final Boss)17609
+Node: The Pattern Or "How We Justified This"18419
+Node: Choosing Your Fuzziness Level19601
+Node: The Philosophy of Rounding20523
+Node: Hour-level rounding21009
+Node: Special handling for midnight and noon21446
+Node: The "past" and "to" logic21934
+Node: Why these specific boundaries?22473
+Node: Understanding Update Intervals23021
+Node: Beyond the Mode-line Other Display Methods24546
+Node: One-time display in minibuffer25006
+Node: Dedicated buffer display25575
+Node: Practical Configurations26264
+Node: Configuration 1 The Default Experience26795
+Node: Configuration 2 Maximum Precision27263
+Node: Configuration 3 Deep Focus Mode27776
+Node: Configuration 4 Weekly Planning Mode28326
+Node: Configuration 5 Context-Aware Switching28843
+Node: Advanced Topic Wait Is This Actually Deep?30480
+Node: What You've Learned31865
+Node: Reference32649
+Node: Installation33131
+Node: Via package manager33304
+Node: Manual installation33518
+Node: Commands33851
+Node: Customization Variables34336
+Node: Fuzziness Levels34829
+Node: Functions35940
+Node: User-Facing Functions36131
+Ref: (fuzzy-clock-mode &optional ARG)36292
+Ref: (fuzzy-clock-show)36742
+Ref: (fuzzy-clock-display-buffer)36884
+Node: Internal Functions37085
+Ref: (fuzzy-clock-format-time FUZZINESS HOUR MINUTE &optional DAY MONTH YEAR DOW DST UTCOFF)37240
+Ref: (fuzzy-clock-format-season MONTH)37952
+Ref: (fuzzy-clock--hour-to-word HOUR)38096
+Ref: (fuzzy-clock-update)38345
+Node: Variables38511
+Node: fuzzy-clock-string38709
+Node: fuzzy-clock-timer39069
+Node: Rounding Behavior Reference39325
+Node: Five-Minute Fuzziness39719
+Node: Fifteen-Minute Fuzziness40602
+Node: Half-Hour Fuzziness41143
+Node: Hour Fuzziness41569
+Node: Part-of-Day Fuzziness41934
+Node: Part-of-Month Mapping42276
+Node: Part-of-Season Mapping42674
+Node: Part-of-Year Mapping43634
+Node: Requirements43999
+Node: Known Limitations44219
+Node: Troubleshooting44619
+Node: Fuzzy time doesn't appear in mode-line44938
+Node: Mode-line shows "*invalid*"45429
+Node: Fuzzy time doesn't update46014
+Node: Wrong season displayed (Southern Hemisphere)46499
+Node: Development46924
+Node: Running Tests47115
+Node: Test Coverage47460
+Node: Version History47951
+Node: 020 (2025)48162
+Node: 010 (2025)48867
+Node: License49163
+Node: Contributing49326
+Node: Credits49527
+Node: Contact49690
+
+End Tag Table
+
+
+Local Variables:
+coding: utf-8
+Info-documentlanguage: en
+End:
