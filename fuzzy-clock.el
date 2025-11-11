@@ -44,10 +44,44 @@
 ;;
 ;; Customization:
 ;;   M-x customize-group RET fuzzy-clock RET
-;;   - fuzzy-clock-fuzziness: Set the fuzziness level (default: 'hour)
-;;   - fuzzy-clock-update-interval: Set update interval in seconds (default: 60)
-;;   - fuzzy-clock-hemisphere: Choose northern or southern hemisphere (default: northern)
-;;   - fuzzy-clock-season-word-preference: Choose "Fall" or "Autumn" (default: fall)
+;;
+;; Time Perspectives:
+;;   Choose how you conceptualize time with `fuzzy-clock-perspective':
+;;   - default: Traditional fuzziness levels (respects `fuzzy-clock-fuzziness`)
+;;   - solar: Natural light cycles (dawn, morning, midday, dusk, etc.)
+;;   - meal-centric: Organized around meal times
+;;   - work-life: Based on work schedule (weekday vs weekend aware)
+;;   - british-tea: Everything relative to tea time (4:00 PM)
+;;   - energy: Human circadian rhythms and energy patterns
+;;   - monastic: Traditional Christian liturgical hours
+;;
+;; Configuration Options:
+;;   - fuzzy-clock-perspective: Choose your time perspective (default: 'default)
+;;   - fuzzy-clock-fuzziness: Granularity for 'default perspective (default: 'hour)
+;;   - fuzzy-clock-hemisphere: Northern or southern hemisphere (default: northern)
+;;   - fuzzy-clock-season-word-preference: "Fall" or "Autumn" (default: fall)
+;;   - fuzzy-clock-update-interval: Update frequency in seconds (default: 60)
+;;   - fuzzy-clock-tea-time: Hour for tea time (default: 16)
+;;   - fuzzy-clock-work-start: Work start hour (default: 9)
+;;   - fuzzy-clock-work-end: Work end hour (default: 17)
+;;   - fuzzy-clock-meal-times: Meal hours alist (default: breakfast 7, lunch 12, dinner 19)
+;;
+;; Creating Custom Perspectives:
+;;   Define your own perspective function and register it:
+;;
+;;   (defun my-perspective (fuzziness hour minute &optional day month year dow dst utcoff)
+;;     "My personal time philosophy."
+;;     (cond
+;;      ((and (>= hour 7) (< hour 9)) "Coffee time!")
+;;      ((and (>= hour 9) (< hour 17)) "Creating and building")
+;;      ((and (>= hour 17) (< hour 22)) "Living and connecting")
+;;      (t "Resting and dreaming")))
+;;
+;;   (add-to-list 'fuzzy-clock-time-perspectives
+;;                '(my-custom . my-perspective))
+;;   (setq fuzzy-clock-perspective 'my-custom)
+;;
+;; See DESIGN-time-perspectives.md for full documentation.
 
 ;;; Code:
 
@@ -76,35 +110,79 @@ Choose between 'fall' (American English) and 'autumn' (British English)."
                  (const :tag "Autumn (British)" autumn))
   :group 'fuzzy-clock)
 
-;;; Future extensibility: Theme system
+;;; Time Perspectives System
 ;;
-;; The configuration system is designed to be extended with themed
-;; display styles. Future enhancements could include:
+;; Time is a human-made, earth-bound construct that different cultures,
+;; contexts, and individuals conceptualize differently. This system
+;; allows users to choose from various "time perspectives" - coherent
+;; ways of thinking about and describing time.
 ;;
-;; - `fuzzy-clock-style': A defcustom to select display themes:
-;;   - 'default: Current behavior
-;;   - 'british-tea-time: Display time relative to tea time
-;;     (e.g., "Two hours until tea", "Just after tea")
-;;   - 'proverbs: Display traditional proverbs for times of day
-;;     (e.g., "The early bird catches the worm" for morning)
-;;   - 'cultural: Multi-cultural time references
-;;     (e.g., various cultural names for parts of day)
+;; Each perspective is a function that maps clock time to human-meaningful
+;; descriptions reflecting cultural, practical, or philosophical approaches.
 ;;
-;; - Theme-specific formatting functions:
-;;   Each theme could have its own formatting function that takes
-;;   the same parameters as `fuzzy-clock-format-time' and returns
-;;   a themed string representation.
-;;
-;; Implementation approach:
-;;   1. Add a `fuzzy-clock-style' defcustom with theme choices
-;;   2. Create theme-specific formatting functions:
-;;      - `fuzzy-clock-format-time--british-tea-time'
-;;      - `fuzzy-clock-format-time--proverbs'
-;;      - `fuzzy-clock-format-time--cultural'
-;;   3. Dispatch from `fuzzy-clock-format-time' based on style
-;;
-;; This modular approach keeps the codebase maintainable while
-;; allowing creative themed variations.
+;; See DESIGN-time-perspectives.md for full documentation.
+
+(defvar fuzzy-clock-time-perspectives nil
+  "Registry of available time perspective functions.
+Each entry is (SYMBOL . FUNCTION) where FUNCTION takes time
+parameters and returns a human-readable description.
+
+Users can add custom perspectives:
+  (add-to-list 'fuzzy-clock-time-perspectives
+               '(my-perspective . my-perspective-function))")
+
+(defcustom fuzzy-clock-perspective 'default
+  "The time perspective to use for fuzzy time display.
+
+A time perspective is a way of conceptualizing and describing time
+that reflects cultural, practical, or philosophical approaches.
+
+Available perspectives:
+  - default: Traditional fuzziness-based display (respects fuzzy-clock-fuzziness)
+  - solar: Based on sun position (dawn, morning, midday, dusk, etc.)
+  - meal-centric: Organized around meal times
+  - work-life: Based on typical work schedule and life structure
+  - british-tea: Everything relative to tea time (traditionally 4 PM)
+  - energy: Based on human circadian rhythms and energy levels
+  - monastic: Traditional Christian liturgical hours
+
+Users can define and register custom perspectives."
+  :type '(choice (const :tag "Default (fuzziness-based)" default)
+                 (const :tag "Solar/Natural cycles" solar)
+                 (const :tag "Meal-centric" meal-centric)
+                 (const :tag "Work/Life balance" work-life)
+                 (const :tag "British tea time" british-tea)
+                 (const :tag "Energy-based" energy)
+                 (const :tag "Monastic hours" monastic))
+  :group 'fuzzy-clock)
+
+;; Perspective-specific configuration variables
+
+(defcustom fuzzy-clock-tea-time 16
+  "Hour for tea time in British tea time perspective (0-23).
+Default is 16 (4:00 PM)."
+  :type 'integer
+  :group 'fuzzy-clock)
+
+(defcustom fuzzy-clock-work-start 9
+  "Hour when work starts for work-life perspective (0-23).
+Default is 9 (9:00 AM)."
+  :type 'integer
+  :group 'fuzzy-clock)
+
+(defcustom fuzzy-clock-work-end 17
+  "Hour when work ends for work-life perspective (0-23).
+Default is 17 (5:00 PM)."
+  :type 'integer
+  :group 'fuzzy-clock)
+
+(defcustom fuzzy-clock-meal-times '((breakfast . 7)
+                                     (lunch . 12)
+                                     (dinner . 19))
+  "Meal times for meal-centric perspective.
+Alist of (MEAL . HOUR) where HOUR is 0-23."
+  :type '(alist :key-type symbol :value-type integer)
+  :group 'fuzzy-clock)
 
 (defun fuzzy-clock--hour-to-word (hour)
   "Convert HOUR (0-23) to word form (e.g., 3 -> `Three')."
@@ -124,8 +202,9 @@ Choose between 'fall' (American English) and 'autumn' (British English)."
      ((= hour-12 11) "Eleven")
      ((= hour-12 12) "Twelve"))))
 
-(defun fuzzy-clock-format-time (fuzziness hour minute &optional day month year dow _dst _utcoff)
-  "Format time as fuzzy string based on FUZZINESS level.
+(defun fuzzy-clock-perspective-default (fuzziness hour minute &optional day month year dow _dst _utcoff)
+  "Default time perspective using traditional fuzziness-based display.
+FUZZINESS determines granularity level.
 HOUR is the hour (0-23) and MINUTE is the minute (0-59).
 Optional: DAY (1-31), MONTH (1-12), YEAR, DOW (day-of-week: 0=Sun,
 6=Sat), DST, UTCOFF.
@@ -372,6 +451,197 @@ Southern Hemisphere (opposite):
                             "Autumn"
                           "Fall")))))
     season-word))
+
+;;; Time Perspective Implementations
+
+(defun fuzzy-clock-perspective-solar (_fuzziness hour _minute &optional _day _month _year _dow _dst _utcoff)
+  "Solar/natural cycles perspective based on sun position.
+Describes time relative to natural light cycles."
+  (cond
+   ((and (>= hour 5) (< hour 6)) "Dawn")
+   ((and (>= hour 6) (< hour 7)) "Sunrise")
+   ((and (>= hour 7) (< hour 9)) "Early morning")
+   ((and (>= hour 9) (< hour 11)) "Late morning")
+   ((and (>= hour 11) (< hour 13)) "Midday")
+   ((= hour 12) "High noon")
+   ((and (>= hour 13) (< hour 16)) "Afternoon")
+   ((and (>= hour 16) (< hour 18)) "Late afternoon")
+   ((and (>= hour 18) (< hour 19)) "Dusk")
+   ((= hour 19) "Twilight")
+   ((and (>= hour 19) (< hour 22)) "Evening")
+   ((and (>= hour 22) (< hour 24)) "Night")
+   ((and (>= hour 0) (< hour 3)) "Deep night")
+   ((and (>= hour 3) (< hour 5)) "Before dawn")
+   (t "Night")))
+
+(defun fuzzy-clock-perspective-meal-centric (_fuzziness hour _minute &optional _day _month _year _dow _dst _utcoff)
+  "Meal-centric perspective organized around eating times.
+Uses `fuzzy-clock-meal-times' for customization."
+  (let ((breakfast-hour (alist-get 'breakfast fuzzy-clock-meal-times 7))
+        (lunch-hour (alist-get 'lunch fuzzy-clock-meal-times 12))
+        (dinner-hour (alist-get 'dinner fuzzy-clock-meal-times 19)))
+    (cond
+     ((and (>= hour (- breakfast-hour 1)) (< hour breakfast-hour))
+      "Time for breakfast soon")
+     ((and (>= hour breakfast-hour) (< hour (1+ breakfast-hour)))
+      "Breakfast time")
+     ((and (>= hour (1+ breakfast-hour)) (< hour (- lunch-hour 2)))
+      "Mid-morning")
+     ((and (>= hour (- lunch-hour 2)) (< hour (- lunch-hour 1)))
+      "Almost lunch")
+     ((and (>= hour (- lunch-hour 1)) (< hour lunch-hour))
+      "Lunch time approaches")
+     ((and (>= hour lunch-hour) (< hour (1+ lunch-hour)))
+      "Lunch time")
+     ((and (>= hour (1+ lunch-hour)) (< hour 15))
+      "Post-lunch")
+     ((and (>= hour 15) (< hour 16))
+      "Afternoon snack time")
+     ((and (>= hour 16) (< hour (- dinner-hour 1)))
+      "Between meals")
+     ((and (>= hour (- dinner-hour 1)) (< hour dinner-hour))
+      "Dinner time soon")
+     ((and (>= hour dinner-hour) (< hour (+ dinner-hour 2)))
+      "Dinner time")
+     ((and (>= hour (+ dinner-hour 2)) (< hour 22))
+      "After dinner")
+     ((and (>= hour 22) (< hour 24))
+      "Late night snack time")
+     ((and (>= hour 0) (< hour (- breakfast-hour 1)))
+      "The wee hours")
+     (t "Between meals"))))
+
+(defun fuzzy-clock-perspective-work-life (_fuzziness hour _minute &optional _day _month _year dow _dst _utcoff)
+  "Work/life balance perspective based on typical work schedule.
+Uses `fuzzy-clock-work-start' and `fuzzy-clock-work-end'.
+Distinguishes between weekdays and weekends using DOW."
+  (let ((is-weekend (or (= dow 0) (= dow 6))))  ; 0=Sunday, 6=Saturday
+    (if is-weekend
+        ;; Weekend time descriptions
+        (cond
+         ((and (>= hour 7) (< hour 10)) "Lazy weekend morning")
+         ((and (>= hour 10) (< hour 12)) "Weekend brunch time")
+         ((and (>= hour 12) (< hour 17)) "Weekend afternoon")
+         ((and (>= hour 17) (< hour 20)) "Weekend evening")
+         ((and (>= hour 20) (< hour 23)) "Weekend night")
+         ((or (< hour 7) (>= hour 23)) "Weekend rest time")
+         (t "Weekend"))
+      ;; Weekday time descriptions
+      (cond
+       ((and (>= hour 6) (< hour (- fuzzy-clock-work-start 1)))
+        "Pre-work routine")
+       ((and (>= hour (- fuzzy-clock-work-start 1)) (< hour fuzzy-clock-work-start))
+        "Morning commute")
+       ((and (>= hour fuzzy-clock-work-start) (< hour 12))
+        "Morning work block")
+       ((and (>= hour 12) (< hour 13))
+        "Lunch break")
+       ((and (>= hour 13) (< hour fuzzy-clock-work-end))
+        "Afternoon work")
+       ((and (>= hour fuzzy-clock-work-end) (< hour (1+ fuzzy-clock-work-end)))
+        "Wrapping up")
+       ((and (>= hour (1+ fuzzy-clock-work-end)) (< hour (+ fuzzy-clock-work-end 2)))
+        "Evening commute")
+       ((and (>= hour (+ fuzzy-clock-work-end 2)) (< hour 22))
+        "Personal time")
+       ((or (>= hour 22) (< hour 6))
+        "Rest time")
+       (t "Work day")))))
+
+(defun fuzzy-clock-perspective-british-tea (_fuzziness hour minute &optional _day _month _year _dow _dst _utcoff)
+  "British tea time perspective - everything relative to tea time.
+Uses `fuzzy-clock-tea-time' (default 16:00 / 4 PM)."
+  (let* ((tea-hour fuzzy-clock-tea-time)
+         (current-decimal (+ hour (/ minute 60.0)))
+         (tea-decimal (float tea-hour))
+         (hours-diff (- current-decimal tea-decimal)))
+    (cond
+     ((< hours-diff -4) "Long before tea")
+     ((< hours-diff -3) "Well before tea")
+     ((< hours-diff -2) (format "%d hours until tea" (ceiling (abs hours-diff))))
+     ((< hours-diff -1) (format "%d hour until tea" (ceiling (abs hours-diff))))
+     ((< hours-diff -0.5) "Less than an hour to tea!")
+     ((< hours-diff -0.25) "Almost tea time")
+     ((< hours-diff -0.08) "Tea time approaches!")
+     ((and (>= hours-diff -0.08) (< hours-diff 0.08)) "Tea time!")
+     ((< hours-diff 0.5) "Just after tea")
+     ((< hours-diff 1) "Shortly after tea")
+     ((< hours-diff 2) (format "%d hour past tea" (floor hours-diff)))
+     ((< hours-diff 3) (format "%d hours past tea" (floor hours-diff)))
+     (t "Well past tea"))))
+
+(defun fuzzy-clock-perspective-energy (_fuzziness hour _minute &optional _day _month _year _dow _dst _utcoff)
+  "Energy-based perspective following human circadian rhythms.
+Describes time based on typical energy patterns throughout the day."
+  (cond
+   ((and (>= hour 6) (< hour 9)) "Morning energy surge")
+   ((and (>= hour 9) (< hour 11)) "Peak productivity window")
+   ((and (>= hour 11) (< hour 12)) "Pre-lunch dip")
+   ((and (>= hour 12) (< hour 14)) "Post-lunch slump")
+   ((and (>= hour 14) (< hour 16)) "Afternoon recovery")
+   ((and (>= hour 16) (< hour 18)) "Second wind")
+   ((and (>= hour 18) (< hour 21)) "Wind down time")
+   ((and (>= hour 21) (< hour 22)) "Prepare for rest")
+   ((and (>= hour 22) (< hour 24)) "Deep rest begins")
+   ((and (>= hour 0) (< hour 3)) "Deep sleep cycle")
+   ((and (>= hour 3) (< hour 6)) "Final sleep phase")
+   (t "Rest time")))
+
+(defun fuzzy-clock-perspective-monastic (_fuzziness hour _minute &optional _day _month _year _dow _dst _utcoff)
+  "Monastic hours perspective based on Christian liturgical hours.
+Traditional times of prayer and contemplation."
+  (cond
+   ((and (>= hour 3) (< hour 4)) "Matins (Night vigils)")
+   ((and (>= hour 4) (< hour 6)) "Between matins and lauds")
+   ((and (>= hour 6) (< hour 7)) "Lauds (Dawn prayer)")
+   ((and (>= hour 7) (< hour 9)) "Prime (First hour)")
+   ((and (>= hour 9) (< hour 10)) "Terce (Third hour)")
+   ((and (>= hour 10) (< hour 12)) "Between terce and sext")
+   ((and (>= hour 12) (< hour 13)) "Sext (Sixth hour)")
+   ((and (>= hour 13) (< hour 15)) "Between sext and none")
+   ((and (>= hour 15) (< hour 16)) "None (Ninth hour)")
+   ((and (>= hour 16) (< hour 18)) "Between none and vespers")
+   ((and (>= hour 18) (< hour 19)) "Vespers (Evening prayer)")
+   ((and (>= hour 19) (< hour 21)) "Between vespers and compline")
+   ((and (>= hour 21) (< hour 22)) "Compline (Night prayer)")
+   ((or (>= hour 22) (< hour 3)) "Great Silence")
+   (t "Prayer time")))
+
+;;; Perspective dispatch system
+
+(defun fuzzy-clock-format-time (fuzziness hour minute &optional day month year dow dst utcoff)
+  "Format time according to selected time perspective.
+Dispatches to perspective function based on `fuzzy-clock-perspective'.
+
+For backward compatibility, when using 'default perspective,
+FUZZINESS is respected. Other perspectives may ignore FUZZINESS.
+
+HOUR is the hour (0-23) and MINUTE is the minute (0-59).
+Optional: DAY (1-31), MONTH (1-12), YEAR, DOW (day-of-week: 0=Sun,
+6=Sat), DST, UTCOFF."
+  (let* ((perspective fuzzy-clock-perspective)
+         (perspective-fn
+          (cond
+           ((eq perspective 'default)
+            'fuzzy-clock-perspective-default)
+           ((eq perspective 'solar)
+            'fuzzy-clock-perspective-solar)
+           ((eq perspective 'meal-centric)
+            'fuzzy-clock-perspective-meal-centric)
+           ((eq perspective 'work-life)
+            'fuzzy-clock-perspective-work-life)
+           ((eq perspective 'british-tea)
+            'fuzzy-clock-perspective-british-tea)
+           ((eq perspective 'energy)
+            'fuzzy-clock-perspective-energy)
+           ((eq perspective 'monastic)
+            'fuzzy-clock-perspective-monastic)
+           ;; Check custom perspectives in registry
+           ((assq perspective fuzzy-clock-time-perspectives)
+            (cdr (assq perspective fuzzy-clock-time-perspectives)))
+           ;; Fallback to default
+           (t 'fuzzy-clock-perspective-default))))
+    (funcall perspective-fn fuzziness hour minute day month year dow dst utcoff)))
 
 ;;; Mode-line integration
 

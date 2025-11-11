@@ -772,6 +772,104 @@
     (it "should be defined as a command"
       (expect (fboundp 'fuzzy-clock-show) :to-be-truthy))))
 
+(describe "Time Perspectives System"
+  ;; Tests for the new time perspectives system
+
+  (describe "Perspective dispatch"
+    (it "should use default perspective when fuzzy-clock-perspective is 'default"
+      (let ((fuzzy-clock-perspective 'default))
+        (expect (fuzzy-clock-format-time 'hour 15 0)
+                :to-equal "Three o'clock")))
+
+    (it "should switch to solar perspective"
+      (let ((fuzzy-clock-perspective 'solar))
+        (expect (fuzzy-clock-format-time 'hour 6 0) :to-equal "Sunrise")
+        (expect (fuzzy-clock-format-time 'hour 12 0) :to-equal "High noon")
+        (expect (fuzzy-clock-format-time 'hour 18 0) :to-equal "Dusk")))
+
+    (it "should switch to meal-centric perspective"
+      (let ((fuzzy-clock-perspective 'meal-centric)
+            (fuzzy-clock-meal-times '((breakfast . 7) (lunch . 12) (dinner . 19))))
+        (expect (fuzzy-clock-format-time 'hour 7 0) :to-equal "Breakfast time")
+        (expect (fuzzy-clock-format-time 'hour 12 0) :to-equal "Lunch time")
+        (expect (fuzzy-clock-format-time 'hour 19 0) :to-equal "Dinner time")))
+
+    (it "should switch to british-tea perspective"
+      (let ((fuzzy-clock-perspective 'british-tea)
+            (fuzzy-clock-tea-time 16))
+        (expect (fuzzy-clock-format-time 'hour 16 0) :to-equal "Tea time!")
+        (expect (fuzzy-clock-format-time 'hour 15 0) :to-match "until tea")
+        (expect (fuzzy-clock-format-time 'hour 17 0) :to-match "past tea"))))
+
+  (describe "Solar perspective"
+    (it "should describe dawn and sunrise"
+      (let ((fuzzy-clock-perspective 'solar))
+        (expect (fuzzy-clock-format-time 'hour 5 30) :to-equal "Dawn")
+        (expect (fuzzy-clock-format-time 'hour 6 30) :to-equal "Sunrise")))
+
+    (it "should describe daytime hours"
+      (let ((fuzzy-clock-perspective 'solar))
+        (expect (fuzzy-clock-format-time 'hour 8 0) :to-equal "Early morning")
+        (expect (fuzzy-clock-format-time 'hour 10 0) :to-equal "Late morning")
+        (expect (fuzzy-clock-format-time 'hour 12 0) :to-equal "High noon")
+        (expect (fuzzy-clock-format-time 'hour 14 0) :to-equal "Afternoon")))
+
+    (it "should describe evening and night"
+      (let ((fuzzy-clock-perspective 'solar))
+        (expect (fuzzy-clock-format-time 'hour 18 30) :to-equal "Dusk")
+        (expect (fuzzy-clock-format-time 'hour 19 0) :to-equal "Twilight")
+        (expect (fuzzy-clock-format-time 'hour 20 0) :to-equal "Evening")
+        (expect (fuzzy-clock-format-time 'hour 23 0) :to-equal "Night"))))
+
+  (describe "Work-life perspective"
+    (it "should distinguish weekday from weekend"
+      (let ((fuzzy-clock-perspective 'work-life)
+            (fuzzy-clock-work-start 9)
+            (fuzzy-clock-work-end 17))
+        ;; Monday (dow=1) - weekday
+        (expect (fuzzy-clock-format-time 'hour 10 0 nil nil nil 1) :to-equal "Morning work block")
+        ;; Saturday (dow=6) - weekend
+        (expect (fuzzy-clock-format-time 'hour 10 0 nil nil nil 6) :to-equal "Weekend brunch time")
+        ;; Sunday (dow=0) - weekend
+        (expect (fuzzy-clock-format-time 'hour 14 0 nil nil nil 0) :to-equal "Weekend afternoon")))
+
+    (it "should show work-related times on weekdays"
+      (let ((fuzzy-clock-perspective 'work-life)
+            (fuzzy-clock-work-start 9)
+            (fuzzy-clock-work-end 17))
+        (expect (fuzzy-clock-format-time 'hour 8 0 nil nil nil 2) :to-equal "Morning commute")
+        (expect (fuzzy-clock-format-time 'hour 12 0 nil nil nil 3) :to-equal "Lunch break")
+        (expect (fuzzy-clock-format-time 'hour 17 0 nil nil nil 4) :to-equal "Wrapping up"))))
+
+  (describe "Monastic perspective"
+    (it "should show traditional prayer hours"
+      (let ((fuzzy-clock-perspective 'monastic))
+        (expect (fuzzy-clock-format-time 'hour 6 30) :to-equal "Lauds (Dawn prayer)")
+        (expect (fuzzy-clock-format-time 'hour 9 30) :to-equal "Terce (Third hour)")
+        (expect (fuzzy-clock-format-time 'hour 12 30) :to-equal "Sext (Sixth hour)")
+        (expect (fuzzy-clock-format-time 'hour 15 30) :to-equal "None (Ninth hour)")
+        (expect (fuzzy-clock-format-time 'hour 18 30) :to-equal "Vespers (Evening prayer)")
+        (expect (fuzzy-clock-format-time 'hour 21 30) :to-equal "Compline (Night prayer)"))))
+
+  (describe "Energy perspective"
+    (it "should describe energy patterns throughout the day"
+      (let ((fuzzy-clock-perspective 'energy))
+        (expect (fuzzy-clock-format-time 'hour 7 0) :to-equal "Morning energy surge")
+        (expect (fuzzy-clock-format-time 'hour 10 0) :to-equal "Peak productivity window")
+        (expect (fuzzy-clock-format-time 'hour 13 0) :to-equal "Post-lunch slump")
+        (expect (fuzzy-clock-format-time 'hour 17 0) :to-equal "Second wind")
+        (expect (fuzzy-clock-format-time 'hour 20 0) :to-equal "Wind down time"))))
+
+  (describe "Custom perspective extensibility"
+    (it "should allow users to register custom perspectives"
+      (let ((custom-called nil)
+            (fuzzy-clock-time-perspectives
+             (cons '(test-custom . (lambda (&rest _) (setq custom-called t) "Custom time"))
+                   fuzzy-clock-time-perspectives))
+            (fuzzy-clock-perspective 'test-custom))
+        (expect (fuzzy-clock-format-time 'hour 12 0) :to-equal "Custom time")
+        (expect custom-called :to-be-truthy)))))
+
 (provide 'fuzzy-clock-test)
 
 ;;; fuzzy-clock-test.el ends here
