@@ -46,6 +46,8 @@
 ;;   M-x customize-group RET fuzzy-clock RET
 ;;   - fuzzy-clock-fuzziness: Set the fuzziness level (default: 'hour)
 ;;   - fuzzy-clock-update-interval: Set update interval in seconds (default: 60)
+;;   - fuzzy-clock-hemisphere: Choose northern or southern hemisphere (default: northern)
+;;   - fuzzy-clock-season-word-preference: Choose "Fall" or "Autumn" (default: fall)
 
 ;;; Code:
 
@@ -53,6 +55,56 @@
   "Display time in a human-friendly, approximate way."
   :group 'calendar
   :prefix "fuzzy-clock-")
+
+;;; Configuration for display preferences
+
+(defcustom fuzzy-clock-hemisphere 'northern
+  "Hemisphere to use for season calculations.
+In the southern hemisphere, seasons are opposite to the northern hemisphere:
+  - Northern Winter (Dec-Feb) = Southern Summer
+  - Northern Spring (Mar-May) = Southern Autumn/Fall
+  - Northern Summer (Jun-Aug) = Southern Winter
+  - Northern Fall (Sep-Nov) = Southern Spring"
+  :type '(choice (const :tag "Northern Hemisphere" northern)
+                 (const :tag "Southern Hemisphere" southern))
+  :group 'fuzzy-clock)
+
+(defcustom fuzzy-clock-season-word-preference 'fall
+  "Preferred word for the autumn season.
+Choose between 'fall' (American English) and 'autumn' (British English)."
+  :type '(choice (const :tag "Fall (American)" fall)
+                 (const :tag "Autumn (British)" autumn))
+  :group 'fuzzy-clock)
+
+;;; Future extensibility: Theme system
+;;
+;; The configuration system is designed to be extended with themed
+;; display styles. Future enhancements could include:
+;;
+;; - `fuzzy-clock-style': A defcustom to select display themes:
+;;   - 'default: Current behavior
+;;   - 'british-tea-time: Display time relative to tea time
+;;     (e.g., "Two hours until tea", "Just after tea")
+;;   - 'proverbs: Display traditional proverbs for times of day
+;;     (e.g., "The early bird catches the worm" for morning)
+;;   - 'cultural: Multi-cultural time references
+;;     (e.g., various cultural names for parts of day)
+;;
+;; - Theme-specific formatting functions:
+;;   Each theme could have its own formatting function that takes
+;;   the same parameters as `fuzzy-clock-format-time' and returns
+;;   a themed string representation.
+;;
+;; Implementation approach:
+;;   1. Add a `fuzzy-clock-style' defcustom with theme choices
+;;   2. Create theme-specific formatting functions:
+;;      - `fuzzy-clock-format-time--british-tea-time'
+;;      - `fuzzy-clock-format-time--proverbs'
+;;      - `fuzzy-clock-format-time--cultural'
+;;   3. Dispatch from `fuzzy-clock-format-time' based on style
+;;
+;; This modular approach keeps the codebase maintainable while
+;; allowing creative themed variations.
 
 (defun fuzzy-clock--hour-to-word (hour)
   "Convert HOUR (0-23) to word form (e.g., 3 -> `Three')."
@@ -283,15 +335,43 @@ part-of-year, year."
 
 (defun fuzzy-clock-format-season (month)
   "Format the season based on MONTH (1-12).
-Winter: December(12), January(1), February(2)
-Spring: March(3), April(4), May(5)
-Summer: June(6), July(7), August(8)
-Fall: September(9), October(10), November(11)"
-  (cond
-   ((or (= month 12) (= month 1) (= month 2)) "Winter")
-   ((and (>= month 3) (<= month 5)) "Spring")
-   ((and (>= month 6) (<= month 8)) "Summer")
-   ((and (>= month 9) (<= month 11)) "Fall")))
+Uses `fuzzy-clock-hemisphere' and `fuzzy-clock-season-word-preference'.
+
+Northern Hemisphere:
+  Winter: December(12), January(1), February(2)
+  Spring: March(3), April(4), May(5)
+  Summer: June(6), July(7), August(8)
+  Fall/Autumn: September(9), October(10), November(11)
+
+Southern Hemisphere (opposite):
+  Summer: December(12), January(1), February(2)
+  Fall/Autumn: March(3), April(4), May(5)
+  Winter: June(6), July(7), August(8)
+  Spring: September(9), October(10), November(11)"
+  (let* ((northern-season
+          (cond
+           ((or (= month 12) (= month 1) (= month 2)) 'winter)
+           ((and (>= month 3) (<= month 5)) 'spring)
+           ((and (>= month 6) (<= month 8)) 'summer)
+           ((and (>= month 9) (<= month 11)) 'fall)))
+         ;; Convert to southern hemisphere if needed (opposite seasons)
+         (season (if (eq fuzzy-clock-hemisphere 'southern)
+                     (cond
+                      ((eq northern-season 'winter) 'summer)
+                      ((eq northern-season 'spring) 'fall)
+                      ((eq northern-season 'summer) 'winter)
+                      ((eq northern-season 'fall) 'spring))
+                   northern-season))
+         ;; Apply word preference for fall/autumn
+         (season-word (cond
+                       ((eq season 'winter) "Winter")
+                       ((eq season 'spring) "Spring")
+                       ((eq season 'summer) "Summer")
+                       ((eq season 'fall)
+                        (if (eq fuzzy-clock-season-word-preference 'autumn)
+                            "Autumn"
+                          "Fall")))))
+    season-word))
 
 ;;; Mode-line integration
 

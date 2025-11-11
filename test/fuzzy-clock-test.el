@@ -546,7 +546,116 @@
 
     (it "should say 'Fall' in November"
       (expect (fuzzy-clock-format-season 11)
-              :to-equal "Fall"))))
+              :to-equal "Fall")))
+
+  (describe "Season configuration: Autumn vs Fall preference"
+    ;; Tests for fuzzy-clock-season-word-preference configuration
+
+    (it "should say 'Fall' by default in September"
+      (let ((fuzzy-clock-season-word-preference 'fall))
+        (expect (fuzzy-clock-format-season 9)
+                :to-equal "Fall")))
+
+    (it "should say 'Autumn' when preference is set to 'autumn in September"
+      (let ((fuzzy-clock-season-word-preference 'autumn))
+        (expect (fuzzy-clock-format-season 9)
+                :to-equal "Autumn")))
+
+    (it "should say 'Fall' by default in October"
+      (let ((fuzzy-clock-season-word-preference 'fall))
+        (expect (fuzzy-clock-format-season 10)
+                :to-equal "Fall")))
+
+    (it "should say 'Autumn' when preference is set to 'autumn in October"
+      (let ((fuzzy-clock-season-word-preference 'autumn))
+        (expect (fuzzy-clock-format-season 10)
+                :to-equal "Autumn")))
+
+    (it "should say 'Fall' by default in November"
+      (let ((fuzzy-clock-season-word-preference 'fall))
+        (expect (fuzzy-clock-format-season 11)
+                :to-equal "Fall")))
+
+    (it "should say 'Autumn' when preference is set to 'autumn in November"
+      (let ((fuzzy-clock-season-word-preference 'autumn))
+        (expect (fuzzy-clock-format-season 11)
+                :to-equal "Autumn")))
+
+    (it "should not affect other seasons"
+      (let ((fuzzy-clock-season-word-preference 'autumn))
+        (expect (fuzzy-clock-format-season 12) :to-equal "Winter")
+        (expect (fuzzy-clock-format-season 3) :to-equal "Spring")
+        (expect (fuzzy-clock-format-season 6) :to-equal "Summer"))))
+
+  (describe "Hemisphere configuration: Southern vs Northern hemisphere"
+    ;; Tests for fuzzy-clock-hemisphere configuration
+
+    (it "should display northern hemisphere seasons by default"
+      (let ((fuzzy-clock-hemisphere 'northern))
+        (expect (fuzzy-clock-format-season 12) :to-equal "Winter")
+        (expect (fuzzy-clock-format-season 3) :to-equal "Spring")
+        (expect (fuzzy-clock-format-season 6) :to-equal "Summer")
+        (expect (fuzzy-clock-format-season 9) :to-equal "Fall")))
+
+    (it "should display opposite seasons for southern hemisphere - Winter becomes Summer"
+      (let ((fuzzy-clock-hemisphere 'southern))
+        (expect (fuzzy-clock-format-season 12) :to-equal "Summer")
+        (expect (fuzzy-clock-format-season 1) :to-equal "Summer")
+        (expect (fuzzy-clock-format-season 2) :to-equal "Summer")))
+
+    (it "should display opposite seasons for southern hemisphere - Spring becomes Fall"
+      (let ((fuzzy-clock-hemisphere 'southern)
+            (fuzzy-clock-season-word-preference 'fall))
+        (expect (fuzzy-clock-format-season 3) :to-equal "Fall")
+        (expect (fuzzy-clock-format-season 4) :to-equal "Fall")
+        (expect (fuzzy-clock-format-season 5) :to-equal "Fall")))
+
+    (it "should display opposite seasons for southern hemisphere - Summer becomes Winter"
+      (let ((fuzzy-clock-hemisphere 'southern))
+        (expect (fuzzy-clock-format-season 6) :to-equal "Winter")
+        (expect (fuzzy-clock-format-season 7) :to-equal "Winter")
+        (expect (fuzzy-clock-format-season 8) :to-equal "Winter")))
+
+    (it "should display opposite seasons for southern hemisphere - Fall becomes Spring"
+      (let ((fuzzy-clock-hemisphere 'southern))
+        (expect (fuzzy-clock-format-season 9) :to-equal "Spring")
+        (expect (fuzzy-clock-format-season 10) :to-equal "Spring")
+        (expect (fuzzy-clock-format-season 11) :to-equal "Spring")))
+
+    (it "should combine southern hemisphere with autumn preference"
+      (let ((fuzzy-clock-hemisphere 'southern)
+            (fuzzy-clock-season-word-preference 'autumn))
+        ;; In southern hemisphere, March-May (northern spring) becomes fall/autumn
+        (expect (fuzzy-clock-format-season 3) :to-equal "Autumn")
+        (expect (fuzzy-clock-format-season 4) :to-equal "Autumn")
+        (expect (fuzzy-clock-format-season 5) :to-equal "Autumn"))))
+
+  (describe "Part of season with configuration"
+    ;; Tests that part-of-season fuzziness respects the configuration
+
+    (it "should use 'Autumn' preference in part-of-season display"
+      (let ((fuzzy-clock-season-word-preference 'autumn))
+        (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 9 2025 1 nil -25200)
+                :to-equal "Early Autumn")
+        (expect (fuzzy-clock-format-time 'part-of-season 12 0 30 10 2025 4 nil -25200)
+                :to-equal "Middle Autumn")
+        (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 11 2025 6 nil -25200)
+                :to-equal "Late Autumn")))
+
+    (it "should use southern hemisphere in part-of-season display"
+      (let ((fuzzy-clock-hemisphere 'southern))
+        ;; December is summer in southern hemisphere
+        (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 12 2024 0 nil -25200)
+                :to-equal "Early Summer")
+        ;; March is fall in southern hemisphere
+        (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 3 2025 6 nil -25200)
+                :to-equal "Early Fall")
+        ;; June is winter in southern hemisphere
+        (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 6 2025 0 nil -25200)
+                :to-equal "Early Winter")
+        ;; September is spring in southern hemisphere
+        (expect (fuzzy-clock-format-time 'part-of-season 12 0 15 9 2025 1 nil -25200)
+                :to-equal "Early Spring")))))
 
 (describe "Fuzzy Clock Mode-line Integration"
   ;; Acceptance tests for mode-line integration
